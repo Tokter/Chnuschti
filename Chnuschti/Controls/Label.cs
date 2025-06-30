@@ -9,6 +9,13 @@ namespace Chnuschti.Controls;
 
 public sealed class Label : Control
 {
+    public Label()
+    {
+        //Get the default style from the current theme
+        Style = ThemeManager.Current.Resources.Get<Label, Style>();
+        IsHitTestVisible = false; // Labels are not interactive by default
+    }
+
     // --------------------------------------------------------------------
     //  Dependency properties
     // --------------------------------------------------------------------
@@ -17,41 +24,10 @@ public sealed class Label : Control
     // CLR wrappers --------------------------------------------------------
     public string Text { get => (string)GetValue(TextProperty)!; set => SetValue(TextProperty, value); }
 
-    public Label()
-    {
-        IsHitTestVisible = false; // Labels are not interactive by default
-    }
-
     //Convert string to Label
     public static implicit operator Label(string text)
     {
         return new Label { Text = text };
-    }
-
-
-    // --------------------------------------------------------------------
-    //  Layout – Measure / Arrange overrides
-    // --------------------------------------------------------------------
-    protected override SKSize MeasureContent(SKSize availContent, RenderResource? resource)
-    {
-        var txt = Text ?? string.Empty;
-
-        // width
-        if (resource is IHaveFont font)
-        {
-            float w = font.MeasureText(txt);
-
-            // height (baseline + descent)
-            var fm = font.GetFontMetrics();
-            float h = fm.Descent - fm.Ascent;  // ascent is negative
-
-            return new SKSize(w, h);
-
-        }
-        else
-        {
-            return SKSize.Empty;
-        }
     }
 
     // --------------------------------------------------------------------

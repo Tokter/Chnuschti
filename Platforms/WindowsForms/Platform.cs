@@ -53,11 +53,12 @@ public class Platform : IPlatform
 
     private void Control_Resize(object? sender, EventArgs e)
     { 
+        float zoomFactor = 1.0f;
+
         if (Application.Screen == null) return;
-        //Application.Screen.SetSize(_control.Width, _control.Height);
-        Application.Screen.SetSize(640, 480);
-        Application.Screen.ScaleX = _control.Width / 640.0f;
-        Application.Screen.ScaleY = _control.Height / 480.0f;
+        Application.Screen.SetSize(_control.Width / zoomFactor, _control.Height / zoomFactor);
+        Application.Screen.ScaleX = zoomFactor;
+        Application.Screen.ScaleY = zoomFactor;
     }
 
     #region Input handling

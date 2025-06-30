@@ -46,25 +46,6 @@ public class Button : ContentControl
 
     // ---- layout: use ContentControl defaults ---------------------------
 
-    // ---- render background + content -----------------------------------
-    protected override void RenderSelf(SKCanvas canvas)
-    {
-        // background (darker when pressed)
-        var bg = Background;
-
-        if (!IsEnabled) bg = bg.WithAlpha(100);
-        else if (IsPressed) bg = bg.WithAlpha(220);
-        else if (IsMouseOver) bg = bg.WithAlpha(180);
-
-        using var paint = new SKPaint { Color = bg };
-        canvas.DrawRect(0, 0,
-                        ContentBounds.Width,
-                        ContentBounds.Height, paint);
-
-        // let ContentControl draw child
-        base.RenderSelf(canvas);
-    }
-
     private static void OnCommandChanged(DependencyObject d, DependencyProperty p, object? oldC, object? newC)
     {
         var btn = (Button)d;

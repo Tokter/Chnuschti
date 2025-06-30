@@ -10,7 +10,7 @@ namespace Chnuschti.Controls;
 
 public class Control : DataElement
 {
-    public static readonly DependencyProperty IsEnabledProperty = DependencyProperty.Register(nameof(IsEnabled), typeof(bool), typeof(Button), new PropertyMetadata(true));
+    public static readonly DependencyProperty IsEnabledProperty = DependencyProperty.Register(nameof(IsEnabled), typeof(bool), typeof(Button), new PropertyMetadata(true, OnInvalidateDrawResources));
     public static readonly DependencyProperty FontSizeProperty = DependencyProperty.Register(nameof(FontSize), typeof(float), typeof(Label), new PropertyMetadata(14f, OnInvalidateDrawResources));
     public static readonly DependencyProperty FontFamilyProperty = DependencyProperty.Register(nameof(FontFamily), typeof(string), typeof(Label), new PropertyMetadata(null, OnInvalidateDrawResources));
     public static readonly DependencyProperty ForegroundProperty = DependencyProperty.Register(nameof(Foreground), typeof(SKColor), typeof(Label), new PropertyMetadata(SKColors.Black, OnInvalidateDrawResources));
@@ -35,8 +35,29 @@ public class Control : DataElement
         return new Label { Text = text, Margin = new Thickness(4) };
     }
 
-    public bool IsPressed { get; private set; } = false;
-    public bool IsMouseOver { get; private set; } = false;
+    private bool _isPressed = false;
+    public bool IsPressed
+    {
+        get => _isPressed;
+        set
+        {
+            if (_isPressed == value) return;
+            _isPressed = value;
+            InvalidateDrawResources(); // will also invalidate measure, arrange & matrices
+        }
+    }
+
+    private bool _isMouseOver = false;
+    public bool IsMouseOver
+    {
+        get => _isMouseOver;
+        set
+        {
+            if (_isMouseOver == value) return;
+            _isMouseOver = value;
+            InvalidateDrawResources(); // will also invalidate measure, arrange & matrices
+        }
+    }
 
     public void MouseDown(SKPoint screenPt)
     {

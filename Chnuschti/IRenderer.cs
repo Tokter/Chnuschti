@@ -10,6 +10,7 @@ namespace Chnuschti;
 public interface IRenderer
 {
     void Render(VisualElement element, SKCanvas canvas);
+    SKSize Measure(VisualElement element, SKSize availableContent);
     void UpdateResources(VisualElement element);
     void DeleteResources(VisualElement element);
     RenderResource GetResource(VisualElement element);

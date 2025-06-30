@@ -153,12 +153,13 @@ public class VisualElement : DependencyObject, IDisposable
     {
         if (_isMeasureValid) return;
         _isMeasureValid = true;
+        UpdateDrawResources();
 
         //subtract margin from availableSize
         var availableContentSize = new SKSize(Math.Max(0, availableSize.Width - Margin.Horizontal), Math.Max(0, availableSize.Height - Margin.Vertical));
 
         //let child override to compute its own size (defaults to 0,0)
-        var desiredSize = MeasureContent(availableContentSize, Style?.Renderer?.GetResource(this)) + Padding;
+        var desiredSize = (_style?.Renderer?.Measure(this, availableContentSize) ?? SKSize.Empty) + Padding;
 
         //use explicit sizing if Widht/Height are set
         var w = float.IsNaN(Width) ? desiredSize.Width : Width;
@@ -169,28 +170,6 @@ public class VisualElement : DependencyObject, IDisposable
         h = MathFEX.Clamp(h, MinHeight, MaxHeight);
 
         _desiredSize = new SKSize(w + Margin.Horizontal, h + Margin.Vertical);
-    }
-
-    /// <summary>
-    /// Override to compute desired size for *content* (no margin or padding).
-    /// </summary>
-    /// <param name="availableContentSize">Desired content size without padding</param>
-    /// <param name="resource">Optional resource for custom rendering</param>
-    /// <returns>Desired size excluding margin or padding</returns>
-    protected virtual SKSize MeasureContent(SKSize availableContentSize, RenderResource? resource)
-    {
-        var maxW = 0f;
-        var maxH = 0f;
-        foreach (var c in _children)
-        {
-            if (!c.IsVisible) continue; // Skip invisible children
-
-            c.Measure(availableContentSize);
-            var d = c._desiredSize;
-            maxW = Math.Max(maxW, d.Width);
-            maxH = Math.Max(maxH, d.Height);
-        }
-        return new SKSize(maxW, maxH);
     }
 
     private SKRect _layoutSlot;
@@ -243,9 +222,9 @@ public class VisualElement : DependencyObject, IDisposable
 
     #region Scene Graph
 
-    public static readonly DependencyProperty ScaleXProperty = DependencyProperty.Register(nameof(ScaleX), typeof(float), typeof(VisualElement), new PropertyMetadata(1f, OnLocalTransformChanged));
-    public static readonly DependencyProperty ScaleYProperty = DependencyProperty.Register(nameof(ScaleY), typeof(float), typeof(VisualElement), new PropertyMetadata(1f, OnLocalTransformChanged));
-    public static readonly DependencyProperty RotationProperty = DependencyProperty.Register(nameof(Rotation), typeof(float), typeof(VisualElement), new PropertyMetadata(0f, OnLocalTransformChanged));
+    public static readonly DependencyProperty ScaleXProperty = DependencyProperty.Register(nameof(ScaleX), typeof(float), typeof(VisualElement), new PropertyMetadata(1f, OnLocalTransformChanged, inherits: false));
+    public static readonly DependencyProperty ScaleYProperty = DependencyProperty.Register(nameof(ScaleY), typeof(float), typeof(VisualElement), new PropertyMetadata(1f, OnLocalTransformChanged, inherits: false));
+    public static readonly DependencyProperty RotationProperty = DependencyProperty.Register(nameof(Rotation), typeof(float), typeof(VisualElement), new PropertyMetadata(0f, OnLocalTransformChanged, inherits: false));
 
     public float ScaleX
     {
@@ -273,6 +252,7 @@ public class VisualElement : DependencyObject, IDisposable
     {
         child.ParentInternal = this;
         _children.Add(child);
+        this.InvalidateMeasure(); // child added, measure may change
     }
 
     protected void ReplaceVisualChild(VisualElement? oldChild, VisualElement? newChild)
@@ -281,6 +261,7 @@ public class VisualElement : DependencyObject, IDisposable
         {
             _children.Remove(oldChild);
             oldChild.ParentInternal = null;
+            oldChild.InvalidateMeasure(); // child removed, measure may change
         }
 
         if (newChild != null)
@@ -295,6 +276,7 @@ public class VisualElement : DependencyObject, IDisposable
             {
                 _children.Add(newChild);
                 newChild.ParentInternal = this;
+                this.InvalidateMeasure(); // child added, measure may change
             }
         }
     }
@@ -358,14 +340,7 @@ public class VisualElement : DependencyObject, IDisposable
 
         canvas.Save();
         canvas.SetMatrix(WorldMatrix);         // overwrite, no Concat chain
-        if (Style?.Renderer != null)
-        {
-            Style?.Renderer.Render(canvas);
-        }
-        else
-        {
-            RenderSelf(canvas);
-        }
+        Style?.Renderer?.Render(this, canvas);
 
         foreach (var c in _children) c.Render(canvas);
 #if DEBUG
@@ -373,14 +348,6 @@ public class VisualElement : DependencyObject, IDisposable
 #endif
         canvas.Restore();
     }
-
-    /// <summary>
-    /// Override in concrete controls to draw themselves in *local* space.
-    /// </summary>
-    /// <param name="canvas">
-    /// The canvas on which to render the control.
-    /// </param>
-    protected virtual void RenderSelf(SKCanvas canvas) { /* default: nothing */ }
 
     public static bool ShowLayoutDebug = false;
 

@@ -1,5 +1,6 @@
 ﻿using Chnuschti;
 using Chnuschti.Controls;
+using Chnuschti.Themes.Default;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Demo.ViewModels;
 using Demo.Views;
@@ -13,6 +14,8 @@ public class DemoApp : ChnuschtiApp
     protected override void OnStartup()
     {
         SetupDependencyInjection();
+
+        ThemeManager.RegisterAndApply(new DefaultTheme()); // Register the default theme
 
         ViewLocator = new ViewLocator();
 

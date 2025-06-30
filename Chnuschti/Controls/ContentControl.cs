@@ -9,6 +9,12 @@ namespace Chnuschti.Controls;
 
 public class ContentControl : Control
 {
+    public ContentControl()
+    {
+        //Get the default style from the current theme
+        Style = ThemeManager.Current.Resources.Get<ContentControl, Style>();
+    }
+
     // --------------------------------------------------------------------
     //  Dependency-property : Content
     // --------------------------------------------------------------------
@@ -31,7 +37,6 @@ public class ContentControl : Control
     //  Attach / detach helpers
     // --------------------------------------------------------------------
     private VisualElement? _content;      // private backing field
-    private Action? _worldMatrixBridge;   // keeps reference to detach later
 
     private void AttachContent(VisualElement? oldC, VisualElement? newC)
     {
@@ -42,32 +47,11 @@ public class ContentControl : Control
         InvalidateMeasure();
     }
 
-    // --------------------------------------------------------------------
-    //  Layout overrides
-    // --------------------------------------------------------------------
-    protected override SKSize MeasureContent(SKSize availContent)
-    {
-        if (_content == null) return SKSize.Empty;
-
-
-        // Let child measure first
-        _content.Measure(availContent);
-        return _content.DesiredSize;
-    }
-
     protected override void ArrangeContent(SKRect contentRect)
     {
         if (_content == null) return; // nothing to layout
 
         var childRect = ShrinkBy(ToLocal(contentRect), _content.Margin);
         _content.Arrange(childRect);
-    }
-
-    // --------------------------------------------------------------------
-    //  Render – draw child in local space
-    // --------------------------------------------------------------------
-    protected override void RenderSelf(SKCanvas canvas)
-    {
-        _content?.Render(canvas);   // child draws in its own local coords
     }
 }

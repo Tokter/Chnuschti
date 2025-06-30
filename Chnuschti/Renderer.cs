@@ -33,9 +33,34 @@ public class Renderer<VisEl,Res> : IRenderer
 
     public virtual void OnRender(SKCanvas canvas, VisEl element, Res resource)
     {
-        // Implement rendering logic here
-        throw new NotImplementedException();
     }
+
+    public SKSize Measure(VisualElement element, SKSize availableContent)
+    {
+        if (_resources.TryGetValue(element.Id, out var resource))
+        {
+            // Use the resource to measure the element
+            return OnMeasure((VisEl)element, (Res)resource, availableContent);
+        }
+        else return SKSize.Empty;
+    }
+
+    public virtual SKSize OnMeasure(VisEl element, Res resource, SKSize availableContent)
+    {
+        var maxW = 0f;
+        var maxH = 0f;
+        foreach (var c in element.Children)
+        {
+            if (!c.IsVisible) continue; // Skip invisible children
+
+            c.Measure(availableContent);
+            var d = c.DesiredSize;
+            maxW = Math.Max(maxW, d.Width);
+            maxH = Math.Max(maxH, d.Height);
+        }
+        return new SKSize(maxW, maxH);
+    }
+
 
     public void UpdateResources(VisualElement element)
     {
@@ -54,8 +79,6 @@ public class Renderer<VisEl,Res> : IRenderer
 
     public virtual void OnUpdateResources(VisEl element, Res resource)
     {
-        // Implement resource update logic here
-        throw new NotImplementedException();
     }
 
     public RenderResource GetResource(VisualElement element)
@@ -68,6 +91,25 @@ public class Renderer<VisEl,Res> : IRenderer
         {
             throw new InvalidOperationException("Resource not found for the given element.");
         }
+    }
+
+
+    protected SKColor Brighten(SKColor color, byte amount)
+    {
+        return new SKColor(
+            (byte)Math.Min(color.Red + amount, 255),
+            (byte)Math.Min(color.Green + amount, 255),
+            (byte)Math.Min(color.Blue + amount, 255),
+            color.Alpha);
+    }
+
+    protected SKColor Darken(SKColor color, byte amount)
+    {
+        return new SKColor(
+            (byte)Math.Max(color.Red - amount, 0),
+            (byte)Math.Max(color.Green - amount, 0),
+            (byte)Math.Max(color.Blue - amount, 0),
+            color.Alpha);
     }
 }
 
@@ -91,34 +133,10 @@ public abstract class RenderResource : IDisposable
     }
 }
 
-public interface IHaveFont
-{
-    float MeasureText(string test);
-    SKRect GetTextBounds(string test);
-    SKFontMetrics GetFontMetrics();
-}
-
-public class FontRenderResource : RenderResource, IHaveFont
+public class FontRenderResource : RenderResource
 {
     public SKPaint Paint { get; set; } = new SKPaint();
     public SKFont Font { get; set; } = new SKFont();
-
-    public SKFontMetrics GetFontMetrics()
-    {
-        Font.GetFontMetrics(out var fm);
-        return fm;
-    }
-
-    public SKRect GetTextBounds(string test)
-    {
-        Font.MeasureText(test, out var bounds);
-        return bounds;
-    }
-
-    public float MeasureText(string test)
-    {
-        return Font.MeasureText(test, Paint);
-    }
 
     protected override void Dispose(bool disposing)
     {

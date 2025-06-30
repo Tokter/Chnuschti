@@ -1,6 +1,6 @@
 ﻿using Chnuschti;
 using Chnuschti.Controls;
-using Chnuschti.Themes.Audio;
+using Chnuschti.Themes.Default;
 using Demo.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -12,12 +12,10 @@ namespace Demo.Views;
 
 public class MainWindow : Screen
 {
-    private Chnuschti.Button _button;
+    private Chnuschti.Button? _button;
 
     public MainWindow()
     {
-        ThemeManager.RegisterAndApply(new AudioTheme()); // Register the audio theme
-
         InitializeComponent();
     }
 
