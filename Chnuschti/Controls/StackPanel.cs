@@ -1,7 +1,7 @@
 ﻿using Chnuschti.Controls;
 using SkiaSharp;
 
-namespace Chnuschti;
+namespace Chnuschti.Controls;
 
 public enum Orientation { Vertical, Horizontal }
 

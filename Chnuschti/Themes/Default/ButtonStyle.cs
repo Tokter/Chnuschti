@@ -1,4 +1,5 @@
-﻿using SkiaSharp;
+﻿using Chnuschti.Controls;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,8 +13,8 @@ public static class ButtonStyle
     public static Style CreateStyle(DefaultTheme theme)
     {
         var s = new Style();
-        s.Add(Chnuschti.Button.BackgroundProperty, new SKColor(128, 128, 128, 255));
-        s.Add(Chnuschti.Button.ForegroundProperty, SKColors.White);
+        s.Add(Button.BackgroundProperty, new SKColor(128, 128, 128, 255));
+        s.Add(Button.ForegroundProperty, SKColors.White);
 
         s.Renderer = new ButtonRenderer(theme);
 

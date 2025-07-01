@@ -53,7 +53,7 @@ public class Platform : IPlatform
 
     private void Control_Resize(object? sender, EventArgs e)
     { 
-        float zoomFactor = 1.0f;
+        float zoomFactor = 2.0f;
 
         if (Application.Screen == null) return;
         Application.Screen.SetSize(_control.Width / zoomFactor, _control.Height / zoomFactor);

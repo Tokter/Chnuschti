@@ -11,12 +11,17 @@ public class MainViewModel : ViewModelBase
 {
     //Title property
     private string _title = "Chnuschti Demo Application";
+    private bool _isButtonEnabled = true;
 
     public ICommand ChangeTitle { get; set; }
 
     public MainViewModel()
     {
-        ChangeTitle = new DelegateCommand((p) => Title = GenerateRandomTitle());
+        ChangeTitle = new DelegateCommand((p) =>
+        {
+            Title = GenerateRandomTitle();
+            IsButtonEnabled = !IsButtonEnabled; // Toggle button state
+        });  
     }
 
     private string GenerateRandomTitle()
@@ -31,5 +36,11 @@ public class MainViewModel : ViewModelBase
     {
         get => _title;
         set => SetProperty(ref _title, value);
+    }
+
+    public bool IsButtonEnabled
+    {
+        get => _isButtonEnabled;
+        set => SetProperty(ref _isButtonEnabled, value);
     }
 }

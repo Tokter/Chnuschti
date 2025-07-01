@@ -354,7 +354,7 @@ public class VisualElement : DependencyObject, IDisposable
     /// <summary>Draws two rectangles around this element:<br/>
     /// • **red** = outer edge of <c>Margin</c><br/>
     /// • **blue** = outer edge of <c>Padding</c></summary>
-    private void DrawLayoutDebug(SKCanvas c)
+    public void DrawLayoutDebug(SKCanvas c)
     {
         if (!ShowLayoutDebug) return;
 

@@ -13,7 +13,7 @@ public static class ScreenStyle
     public static Style CreateStyle(DefaultTheme theme)
     {
         var s = new Style();
-        s.Add(Chnuschti.Button.ForegroundProperty, SKColors.White);
+        s.Add(Screen.ForegroundProperty, SKColors.White);
         //s.Add(Chnuschti.Button.FontFamilyProperty, "Arial");
         s.Renderer = new ScreenRenderer(theme);
         return s;

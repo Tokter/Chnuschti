@@ -33,8 +33,8 @@ public class ContentControlRenderer : Renderer<ContentControl, ContentControlRes
         return element.Content.DesiredSize;
     }
 
-    public override void OnRender(SKCanvas canvas, ContentControl element, ContentControlResource resource)
-    {
-        element.Content?.Render(canvas);   // child draws in its own local coords
-    }
+    //public override void OnRender(SKCanvas canvas, ContentControl element, ContentControlResource resource)
+    //{
+    //    element.Content?.Render(canvas);   // child draws in its own local coords
+    //}
 }

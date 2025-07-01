@@ -20,6 +20,7 @@ public class DefaultTheme : Theme
             .Add<Label, Style>(LabelStyle.CreateStyle())
             .Add<StackPanel, Style>(StackPanelStyle.CreateStyle())
             .Add<ContentControl, Style>(ContentControlStyle.CreateStyle())
-            .Add<Button, Style>(ButtonStyle.CreateStyle(this));
+            .Add<Button, Style>(ButtonStyle.CreateStyle(this))
+            .Add<CheckBox, Style>(CheckboxStyle.CreateStyle(this));
     }
 }

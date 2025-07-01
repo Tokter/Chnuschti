@@ -12,7 +12,7 @@ namespace Demo.Views;
 
 public class MainWindow : Screen
 {
-    private Chnuschti.Button? _button;
+    private Button? _button;
 
     public MainWindow()
     {
@@ -33,8 +33,20 @@ public class MainWindow : Screen
 
         new Label { Text = "Bob", Margin = new Thickness(4) }.AddTo(Content);
         new Label { Text = "Carol", Margin = new Thickness(4) }.AddTo(Content);
-        _button = new Chnuschti.Button { Content = "Click me", Margin = new Thickness(4), Padding = new Thickness(3) }
+        _button = new Button { Content = "Click me", Margin = new Thickness(4), Padding = new Thickness(3) }
         .AddTo(Content);
-        _button.SetBinding(Chnuschti.Button.CommandProperty, this.OneWayToDC((MainViewModel mvm) => mvm.ChangeTitle));
+        _button.SetBinding(Button.CommandProperty, this.OneWayToDC((MainViewModel mvm) => mvm.ChangeTitle));
+        _button.SetBinding(Button.IsEnabledProperty, this.TwoWayToDC((MainViewModel mvm) => mvm.IsButtonEnabled));
+
+        var cb = new CheckBox
+        {
+            Content = "CheckBox",
+            Margin = new Thickness(4)
+        };
+        cb.SetBinding(CheckBox.IsCheckedProperty, this.TwoWayToDC((MainViewModel mvm) => mvm.IsButtonEnabled));
+        cb.Content.Padding = new Thickness(0,4,4,4);
+
+
+        cb.AddTo(Content);
     }
 }
