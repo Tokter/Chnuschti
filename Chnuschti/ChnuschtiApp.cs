@@ -1,5 +1,6 @@
 ﻿using Chnuschti.Controls;
 using Microsoft.VisualBasic;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,9 @@ namespace Chnuschti;
 
 public class ChnuschtiApp
 {
+    private float MousePosX = 0.0f;
+    private float MousePosY = 0.0f;
+
     public IViewLocator? ViewLocator { get; set; }
     public Screen? Screen { get; set; }
 
@@ -24,6 +28,47 @@ public class ChnuschtiApp
     }
 
     private Control? _capturedControl; // The control that has captured the mouse
+
+    public float Scale { get; set; } = 2.0f;
+    public float ScreenWidth { get; set; }
+    public float ScreenHeight { get; set; }
+
+    public void SetSize(float width, float height)
+    {
+        ScreenWidth = width;
+        ScreenHeight = height;
+
+        if (Screen == null) return; // Ensure Screen is initialized
+        Screen.SetSize(width / Scale, height / Scale);
+        Screen.ScaleX = Scale;
+        Screen.ScaleY = Scale;
+    }
+
+    private readonly FrameTimer _timer = new();
+
+    public void Render(SKCanvas canvas)
+    {
+        _timer.Tick();
+
+        if (Screen == null) return; // Render the screen content
+
+        Screen.Render(canvas);
+
+        //Draw mouse position for debugging at the bottom left corner
+        using var paint = new SKPaint
+        {
+            Color = SKColors.Red,
+        };
+        using var font = new SKFont
+        {
+            Size = 12 * Screen.ScaleY,
+        };
+        canvas.DrawText($"Mouse: {MousePosX / Scale:F2}, {MousePosY / Scale:F2}", 10 * Scale, ScreenHeight - 10 * Scale, font, paint);
+
+        //Draw FPS at the top right corner
+        canvas.DrawText($"FPS: {_timer.Fps:F2}", ScreenWidth - 60 * Scale, 10 * Scale, font, paint);
+
+    }
 
     /// <summary>
     /// Processes the specified input event and determines whether it was handled successfully.
@@ -42,6 +87,10 @@ public class ChnuschtiApp
             case InputEventType.MouseMove:
 
                 VisualElement? mouseOver = null;
+
+                MousePosX = inputEvent.MousePos.X;
+                MousePosY = inputEvent.MousePos.Y;
+
 
                 if (_capturedControl != null)
                 {

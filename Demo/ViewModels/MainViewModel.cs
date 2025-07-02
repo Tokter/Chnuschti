@@ -20,7 +20,6 @@ public class MainViewModel : ViewModelBase
         ChangeTitle = new DelegateCommand((p) =>
         {
             Title = GenerateRandomTitle();
-            IsButtonEnabled = !IsButtonEnabled; // Toggle button state
         });  
     }
 

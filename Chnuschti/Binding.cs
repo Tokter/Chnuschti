@@ -18,6 +18,7 @@ public interface IReadOnlyBinding
 /// </summary>
 public interface ITwoWayBinding : IReadOnlyBinding
 {
+    bool CanWrite { get; }
     void Write(object? value);   // throws if conversion fails
 }
 
@@ -90,11 +91,12 @@ public sealed class Binding<TSource, TProp> : ITwoWayBinding where TSource : INo
     /// <summary>Raised when the source property fires PropertyChanged.</summary>
     public event Action? ValueChanged;
 
+    public bool CanWrite => _setter != null;
+
     public void Write(object? v)
     {
-        if (_setter is null)
-            throw new InvalidOperationException("Binding is OneWay/OneTime.");
-        _setter(Source, (TProp)v!);
+        if(!CanWrite) throw new InvalidOperationException("Binding is OneWay/OneTime.");
+        _setter!(Source, (TProp)v!);
     }
 
     #endregion
@@ -238,11 +240,12 @@ internal sealed class DataContextBinding<TSource, TProp> : ITwoWayBinding
     #region IReadOnlyBinding / ITwoWayBinding implementation
     public object? Value => _inner is null ? null : _inner.Value;
 
+    public bool CanWrite => _mode == BindingMode.TwoWay && _inner is ITwoWayBinding tw && tw.CanWrite;
+
     public void Write(object? v)
     {
-        if (_inner is null) return;
-        if (_inner is ITwoWayBinding tw) tw.Write(v);
-        else throw new InvalidOperationException("Binding is not TwoWay.");
+        if (!CanWrite) throw new InvalidOperationException("Binding is not TwoWay.");
+        _inner!.Write(v);
     }
 
     public event Action? ValueChanged;

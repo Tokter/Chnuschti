@@ -77,7 +77,7 @@ public class ButtonRenderer : Renderer<Button, ButtonResource>
         if (!element.IsEnabled)
         {
             resource.Paint.Shader = null;
-            resource.Paint.Color = element.Background.WithAlpha(100);
+            resource.Paint.Color = element.Background.WithAlpha(80);
         }
         else if (element.IsPressed)
         {

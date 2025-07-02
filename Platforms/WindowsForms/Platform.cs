@@ -34,39 +34,21 @@ public class Platform : IPlatform
 
     private void Control_PaintSurface(object? sender, SKPaintGLSurfaceEventArgs e)
     {
-        if (Application.Screen == null) return;
-        Application.Screen.Render(e.Surface.Canvas);
-
-        //Draw mouse position for debugging at the bottom left corner
-        using var paint = new SKPaint
-        {
-            Color = SKColors.Red,
-        };
-        using var font = new SKFont
-        {
-            Size = 12 * Application.Screen.ScaleY,
-        };
-        e.Surface.Canvas.DrawText($"Mouse: {MousePosX:F2}, {MousePosY:F2}", 10 * Application.Screen.ScaleX, e.Info.Height - 10 * Application.Screen.ScaleY, font, paint);
+        Application.Render(e.Surface.Canvas);
 
         _control.Invalidate();
     }
 
     private void Control_Resize(object? sender, EventArgs e)
     { 
-        float zoomFactor = 2.0f;
-
         if (Application.Screen == null) return;
-        Application.Screen.SetSize(_control.Width / zoomFactor, _control.Height / zoomFactor);
-        Application.Screen.ScaleX = zoomFactor;
-        Application.Screen.ScaleY = zoomFactor;
+        Application.SetSize(_control.Width, _control.Height);
     }
 
     #region Input handling
     bool _lastShift = false;
     bool _lastControl = false;
     bool _lastAlt = false;
-    float MousePosX = 0.0f;
-    float MousePosY = 0.0f;
 
     private void Control_KeyDown(object? sender, KeyEventArgs e)
     {
@@ -86,8 +68,6 @@ public class Platform : IPlatform
 
     public void Control_MouseMove(object? sender, MouseEventArgs e)
     {
-        MousePosX = e.X / Application.Screen.ScaleX;
-        MousePosY = e.Y / Application.Screen.ScaleY;
         Application.ProcessInputEvent(InputEvent.MouseMove(e.X, e.Y, (MouseButtons)((int)e.Button >> 20), _lastShift, _lastControl, _lastAlt));
     }
 

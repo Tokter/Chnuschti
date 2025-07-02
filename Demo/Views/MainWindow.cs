@@ -36,7 +36,7 @@ public class MainWindow : Screen
         _button = new Button { Content = "Click me", Margin = new Thickness(4), Padding = new Thickness(3) }
         .AddTo(Content);
         _button.SetBinding(Button.CommandProperty, this.OneWayToDC((MainViewModel mvm) => mvm.ChangeTitle));
-        _button.SetBinding(Button.IsEnabledProperty, this.TwoWayToDC((MainViewModel mvm) => mvm.IsButtonEnabled));
+        _button.SetBinding(Button.IsEnabledProperty, this.OneWayToDC((MainViewModel mvm) => mvm.IsButtonEnabled));
 
         var cb = new CheckBox
         {

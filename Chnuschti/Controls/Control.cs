@@ -10,12 +10,12 @@ namespace Chnuschti.Controls;
 
 public class Control : DataElement
 {
-    public static readonly DependencyProperty IsEnabledProperty = DependencyProperty.Register(nameof(IsEnabled), typeof(bool), typeof(Button), new PropertyMetadata(true, OnInvalidateDrawResources));
-    public static readonly DependencyProperty FontSizeProperty = DependencyProperty.Register(nameof(FontSize), typeof(float), typeof(Label), new PropertyMetadata(14f, OnInvalidateDrawResources));
-    public static readonly DependencyProperty FontFamilyProperty = DependencyProperty.Register(nameof(FontFamily), typeof(string), typeof(Label), new PropertyMetadata(null, OnInvalidateDrawResources));
-    public static readonly DependencyProperty ForegroundProperty = DependencyProperty.Register(nameof(Foreground), typeof(SKColor), typeof(Label), new PropertyMetadata(SKColors.Black, OnInvalidateDrawResources));
-    public static readonly DependencyProperty BackgroundProperty = DependencyProperty.Register(nameof(Background), typeof(SKColor), typeof(Button), new PropertyMetadata(SKColors.SlateGray));
-    public static readonly DependencyProperty BoldProperty = DependencyProperty.Register(nameof(Bold), typeof(bool), typeof(Label), new PropertyMetadata(false, OnInvalidateDrawResources));
+    public static readonly DependencyProperty IsEnabledProperty = DependencyProperty.Register(nameof(IsEnabled), typeof(bool), typeof(Control), new PropertyMetadata(true, OnIsEnabledChanged, inherits: true));
+    public static readonly DependencyProperty FontSizeProperty = DependencyProperty.Register(nameof(FontSize), typeof(float), typeof(Control), new PropertyMetadata(14f, OnInvalidateDrawResources));
+    public static readonly DependencyProperty FontFamilyProperty = DependencyProperty.Register(nameof(FontFamily), typeof(string), typeof(Control), new PropertyMetadata(null, OnInvalidateDrawResources));
+    public static readonly DependencyProperty ForegroundProperty = DependencyProperty.Register(nameof(Foreground), typeof(SKColor), typeof(Control), new PropertyMetadata(SKColors.Black, OnInvalidateDrawResources));
+    public static readonly DependencyProperty BackgroundProperty = DependencyProperty.Register(nameof(Background), typeof(SKColor), typeof(Control), new PropertyMetadata(SKColors.SlateGray));
+    public static readonly DependencyProperty BoldProperty = DependencyProperty.Register(nameof(Bold), typeof(bool), typeof(Control), new PropertyMetadata(false, OnInvalidateDrawResources));
 
     public bool IsEnabled
     {
@@ -66,7 +66,7 @@ public class Control : DataElement
 
     public virtual void MouseUp(SKPoint screenPt)
     {
-        if (!IsPressed) return; 
+        if (!IsPressed) return;
         IsPressed = false;
         if (IsEnabled && IsMouseOver) OnClick(this, EventArgs.Empty);
     }
@@ -92,11 +92,30 @@ public class Control : DataElement
     // --------------------------------------------------------------------
     //  Property-change helpers
     // --------------------------------------------------------------------
-    private static void OnInvalidateDrawResources(DependencyObject d, DependencyProperty p, object? o, object? n)
+    private static void OnInvalidateDrawResources(DependencyObject d, DependencyProperty p, object? oldV, object? newV)
     {
         if (d is Control c)
         {
             c.InvalidateDrawResources(); // will also invalidate measure, arrange & matrices
         }
+    }
+
+    private static void OnIsEnabledChanged(DependencyObject d, DependencyProperty p, object? oldV, object? newV)
+    {
+        if (d is Control c)
+        {
+            c.InvalidateDrawResources();      // redraw the element itself
+            PropagateInvalidate(c);           // and all its children
+        }
+
+        static void PropagateInvalidate(VisualElement root)
+        {
+            foreach (var child in root.Children)
+            {
+                if (child is Control ctrl) ctrl.InvalidateDrawResources();
+                PropagateInvalidate(child);                 // depth-first
+            }
+        }
+
     }
 }

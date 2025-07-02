@@ -58,7 +58,7 @@ public class LabelRenderer : Renderer<Label,LabelResource>
 
         if (!element.IsEnabled)
         {
-            resource.Paint.Color = element.Foreground.WithAlpha(100);
+            resource.Paint.Color = element.Foreground.WithAlpha(80);
         }
         else
         {
