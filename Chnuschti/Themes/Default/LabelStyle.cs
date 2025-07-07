@@ -23,13 +23,13 @@ public static class LabelStyle
     }
 }
 
-public class LabelResource : FontRenderResource
+public class LabelRenderState : RenderState
 {
 }
 
-public class LabelRenderer : Renderer<Label,LabelResource>
+public class LabelRenderer : Renderer<Label,LabelRenderState>
 {
-    public override void OnRender(SKCanvas canvas, Label element, LabelResource resource)
+    public override void OnRender(SKCanvas canvas, Label element, LabelRenderState resource, double deltaTime)
     {
         var txt = element.Text ?? string.Empty;
 
@@ -41,7 +41,7 @@ public class LabelRenderer : Renderer<Label,LabelResource>
         canvas.DrawText(txt, 0, baseline, resource.Font, resource.Paint);
     }
 
-    public override SKSize OnMeasure(Label element, LabelResource resource, SKSize availableContent)
+    public override SKSize OnMeasure(Label element, LabelRenderState resource, SKSize availableContent)
     {
         float w = resource.Font.MeasureText(element.Text);
 
@@ -52,7 +52,7 @@ public class LabelRenderer : Renderer<Label,LabelResource>
         return new SKSize(w, h);
     }
 
-    public override void OnUpdateResources(Label element, LabelResource resource)
+    public override void OnUpdateRenderState(Label element, LabelRenderState resource)
     {
         resource.Font.Size = element.FontSize;
 

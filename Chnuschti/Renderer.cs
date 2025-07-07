@@ -9,9 +9,9 @@ namespace Chnuschti;
 
 public class Renderer<VisEl,Res> : IRenderer 
     where VisEl : VisualElement 
-    where Res : RenderResource
+    where Res : RenderState
 {
-    private Dictionary<long, RenderResource> _resources = new();
+    private Dictionary<long, RenderState> _resources = new();
 
     public void DeleteResources(VisualElement element)
     {
@@ -22,16 +22,26 @@ public class Renderer<VisEl,Res> : IRenderer
         }
     }
 
-    public void Render(VisualElement element, SKCanvas canvas)
+    private double _animationTime = 0;
+    private const double animationTimeStep = 1.0 / 60.0;
+
+    public void Render(VisualElement element, SKCanvas canvas, double deltaTime)
     {
         if (_resources.TryGetValue(element.Id, out var resource))
         {
+            _animationTime += deltaTime;
+            if (_animationTime >= animationTimeStep)
+            {
+                resource.Animations.UpdateAll(_animationTime);
+                _animationTime = 0;
+            }
+
             // Use the resource to render the element
-            OnRender(canvas, (VisEl)element, (Res)resource);
+            OnRender(canvas, (VisEl)element, (Res)resource, deltaTime);
         }
     }
 
-    public virtual void OnRender(SKCanvas canvas, VisEl element, Res resource)
+    public virtual void OnRender(SKCanvas canvas, VisEl element, Res resource, double deltaTime)
     {
     }
 
@@ -66,22 +76,22 @@ public class Renderer<VisEl,Res> : IRenderer
     {
         if (_resources.TryGetValue(element.Id, out var resource))
         {
-            OnUpdateResources((VisEl)element, (Res)resource);
+            OnUpdateRenderState((VisEl)element, (Res)resource);
         }
         else
         {
-            // Create a new resource if it doesn't exist
-            var newResource = Activator.CreateInstance<Res>();
-            _resources[element.Id] = newResource;
-            OnUpdateResources((VisEl)element, newResource);
+            // Create a new render state if it doesn't exist
+            var newRenderState = Activator.CreateInstance<Res>();
+            _resources[element.Id] = newRenderState;
+            OnUpdateRenderState((VisEl)element, newRenderState);
         }
     }
 
-    public virtual void OnUpdateResources(VisEl element, Res resource)
+    public virtual void OnUpdateRenderState(VisEl element, Res resource)
     {
     }
 
-    public RenderResource GetResource(VisualElement element)
+    public RenderState GetResource(VisualElement element)
     {
         if (_resources.TryGetValue(element.Id, out var resource))
         {
@@ -113,15 +123,24 @@ public class Renderer<VisEl,Res> : IRenderer
     }
 }
 
-public abstract class RenderResource : IDisposable
+public abstract class RenderState : IDisposable
 {
-    private bool disposedValue;
+    private bool _disposedValue;
+    public AnimationGroup Animations { get; } = new();
+
+    public SKPaint Paint { get; set; } = new SKPaint();
+    public SKFont Font { get; set; } = new SKFont();
 
     protected virtual void Dispose(bool disposing)
     {
-        if (!disposedValue)
+        if (!_disposedValue)
         {
-            disposedValue = true;
+            if (disposing)
+            {
+                Paint.Dispose();
+                Font.Dispose();
+            }
+            _disposedValue = true;
         }
     }
 
@@ -130,21 +149,5 @@ public abstract class RenderResource : IDisposable
         // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
-    }
-}
-
-public class FontRenderResource : RenderResource
-{
-    public SKPaint Paint { get; set; } = new SKPaint();
-    public SKFont Font { get; set; } = new SKFont();
-
-    protected override void Dispose(bool disposing)
-    {
-        if (disposing)
-        {
-            Paint.Dispose();
-            Font.Dispose();
-        }
-        base.Dispose(disposing);
     }
 }

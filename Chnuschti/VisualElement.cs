@@ -333,16 +333,16 @@ public class VisualElement : DependencyObject, IDisposable
 
     #region Rendering
 
-    public void Render(SKCanvas canvas)
+    public void Render(SKCanvas canvas, double deltaTime)
     {
         if (!IsVisible) return;
         UpdateDrawResources();
 
         canvas.Save();
         canvas.SetMatrix(WorldMatrix);         // overwrite, no Concat chain
-        Style?.Renderer?.Render(this, canvas);
+        Style?.Renderer?.Render(this, canvas, deltaTime);
 
-        foreach (var c in _children) c.Render(canvas);
+        foreach (var c in _children) c.Render(canvas, deltaTime);
 #if DEBUG
         DrawLayoutDebug(canvas);
 #endif

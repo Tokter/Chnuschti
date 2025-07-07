@@ -22,17 +22,15 @@ public static class ButtonStyle
     }
 }
 
-public class ButtonResource : RenderResource
+public class ButtonResource : RenderState
 {
     public SKPaint BorderPaint { get; set; } = new SKPaint();
-    public SKPaint Paint { get; set; } = new SKPaint();
 
     protected override void Dispose(bool disposing)
     {
         if (disposing)
         {
             BorderPaint.Dispose();
-            Paint.Dispose();
         }
         base.Dispose(disposing);
     }
@@ -56,16 +54,16 @@ public class ButtonRenderer : Renderer<Button, ButtonResource>
         return element.Content.DesiredSize;
     }
 
-    public override void OnRender(SKCanvas canvas, Button element, ButtonResource resource)
+    public override void OnRender(SKCanvas canvas, Button element, ButtonResource resource, double deltaTime)
     {
         canvas.DrawRoundRect(0, 0, element.ContentBounds.Width, element.ContentBounds.Height, 5, 5, resource.Paint);
         canvas.DrawRoundRect(0, 0, element.ContentBounds.Width, element.ContentBounds.Height, 5, 5, resource.BorderPaint);
 
         // let ContentControl draw child
-        element.Content?.Render(canvas);   // child draws in its own local coords
+        element.Content?.Render(canvas, deltaTime);   // child draws in its own local coords
     }
 
-    public override void OnUpdateResources(Button element, ButtonResource resource)
+    public override void OnUpdateRenderState(Button element, ButtonResource resource)
     {
         resource.BorderPaint.Color = _theme.BorderColor;
         resource.BorderPaint.Style = SKPaintStyle.Stroke;

@@ -18,7 +18,7 @@ public static class StackPanelStyle
     }
 }
 
-public class StackPanelResource : RenderResource
+public class StackPanelResource : RenderState
 {
 }
 

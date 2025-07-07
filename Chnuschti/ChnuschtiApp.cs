@@ -52,7 +52,7 @@ public class ChnuschtiApp
 
         if (Screen == null) return; // Render the screen content
 
-        Screen.Render(canvas);
+        Screen.Render(canvas, _timer.DeltaTime);
 
         //Draw mouse position for debugging at the bottom left corner
         using var paint = new SKPaint

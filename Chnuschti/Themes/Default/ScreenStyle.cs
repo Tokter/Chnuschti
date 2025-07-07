@@ -20,7 +20,7 @@ public static class ScreenStyle
     }
 }
 
-public class ScreenResource : RenderResource
+public class ScreenResource : RenderState
 {
 }
 
@@ -33,9 +33,9 @@ public class ScreenRenderer : Renderer<Screen, ScreenResource>
         _theme = theme;
     }
 
-    public override void OnRender(SKCanvas canvas, Screen element, ScreenResource resource)
+    public override void OnRender(SKCanvas canvas, Screen element, ScreenResource resource, double deltaTime)
     {
         canvas.Clear(_theme.BackgroundColor);
-        element.Content?.Render(canvas);
+        element.Content?.Render(canvas, deltaTime);
     }
 }

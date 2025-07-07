@@ -18,7 +18,7 @@ public static class ContentControlStyle
     }
 }
 
-public class ContentControlResource : RenderResource
+public class ContentControlResource : RenderState
 {
 }
 
