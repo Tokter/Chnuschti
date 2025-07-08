@@ -13,7 +13,6 @@ public static class CheckboxStyle
     public static Style CreateStyle(DefaultTheme theme)
     {
         var s = new Style();
-        s.Add(CheckBox.ForegroundProperty, SKColors.White);
 
         s.Renderer = new CheckBoxRenderer(theme);
 
@@ -24,14 +23,21 @@ public static class CheckboxStyle
 internal sealed class CheckBoxRenderState : RenderState
 {
     public bool PreviousCheckedState = false;
-
+    public bool PreviousPressedState = false;
+    public bool PreviousEnabledState = true;
     public SKPaint BorderPaint { get; } = new();
-    public SKPaint BoxPaint { get; } = new();
-    public SKPaint TickPaint { get; } = new();
+    public SKPaint BackgroundPaint { get; } = new();
+    public SKPaint HandlePaint { get; } = new();
+    public SKPaint HoverPaint { get; } = new();
+    public float HandlePosition { get; set; }
+    public float HandleSize { get; set; }
 
     public CheckBoxRenderState()
     {
-        Animations.Add(new AnimationColor("ColorFader", TimeSpan.FromSeconds(0.5), (c) => TickPaint.Color = c));
+        Animations.Add(new AnimationColor("HandleColor", TimeSpan.FromSeconds(0.5), (c) => HandlePaint.Color = c));
+        Animations.Add(new AnimationColor("BackgroundColor", TimeSpan.FromSeconds(0.5), (c) => BackgroundPaint.Color = c));
+        Animations.Add(new AnimationNumeric<float>("HandlePosition", TimeSpan.FromSeconds(0.5), (p) => HandlePosition = p, AnimationType.EaseInOut));
+        Animations.Add(new AnimationNumeric<float>("HandleSize", TimeSpan.FromSeconds(0.2), (p) => HandleSize = p));
     }
 
     protected override void Dispose(bool disposing)
@@ -39,8 +45,9 @@ internal sealed class CheckBoxRenderState : RenderState
         if (disposing)
         {
             BorderPaint.Dispose();
-            BoxPaint.Dispose();
-            TickPaint.Dispose();
+            BackgroundPaint.Dispose();
+            HandlePaint.Dispose();
+            HoverPaint.Dispose();
         }
         base.Dispose(disposing);
     }
@@ -49,8 +56,7 @@ internal sealed class CheckBoxRenderState : RenderState
 internal sealed class CheckBoxRenderer : Renderer<CheckBox, CheckBoxRenderState>
 {
     private readonly DefaultTheme _theme;
-    private const float BOX_SIZE = 16f;
-    private const float SPACING = 0f;
+
 
     public CheckBoxRenderer(DefaultTheme theme) => _theme = theme;
 
@@ -59,7 +65,7 @@ internal sealed class CheckBoxRenderer : Renderer<CheckBox, CheckBoxRenderState>
     {
         // Reserve box + spacing, remainder is for content
         var remain = new SKSize(
-            Math.Max(0, avail.Width - BOX_SIZE - SPACING),
+            Math.Max(0, avail.Width - CheckBox.WIDTH),
             avail.Height);
 
         var childNeed = SKSize.Empty;
@@ -69,8 +75,8 @@ internal sealed class CheckBoxRenderer : Renderer<CheckBox, CheckBoxRenderState>
             childNeed = elem.Content.DesiredSize;
         }
 
-        var w = BOX_SIZE + (elem.Content != null ? SPACING + childNeed.Width : 0);
-        var h = Math.Max(BOX_SIZE, childNeed.Height);
+        var w = CheckBox.WIDTH + (elem.Content != null ? childNeed.Width : 0);
+        var h = Math.Max(CheckBox.HEIGHT, childNeed.Height);
 
         return new SKSize(w, h);
     }
@@ -79,51 +85,107 @@ internal sealed class CheckBoxRenderer : Renderer<CheckBox, CheckBoxRenderState>
     public override void OnRender(SKCanvas c, CheckBox e, CheckBoxRenderState r, double deltaTime)
     {
         // Position box vertically centred
-        var y = (e.ContentBounds.Height - BOX_SIZE) / 2f;
+        var y = (e.ContentBounds.Height - CheckBox.HEIGHT) / 2f;
 
         // Draw box
-        c.DrawRoundRect(0, y, BOX_SIZE, BOX_SIZE, 3, 3, r.BoxPaint);
-        c.DrawRoundRect(0, y, BOX_SIZE, BOX_SIZE, 3, 3, r.BorderPaint);
+        var radius = CheckBox.HEIGHT / 2.0f;
+        c.DrawRoundRect(0, y, CheckBox.WIDTH, CheckBox.HEIGHT, radius, radius, r.BackgroundPaint);
+        c.DrawRoundRect(0, y, CheckBox.WIDTH, CheckBox.HEIGHT, radius, radius, r.BorderPaint);
 
-        // Tick
-        if (e.IsChecked || r.Animations["ColorFader"].IsRunning)
+        if (e.IsMouseOver)
         {
-            var path = new SKPath();
-            path.MoveTo(3, y + BOX_SIZE * 0.55f);
-            path.LineTo(BOX_SIZE * 0.4f, y + BOX_SIZE - 3);
-            path.LineTo(BOX_SIZE - 3, y + 3);
-            c.DrawPath(path, r.TickPaint);
+            c.DrawCircle(r.HandlePosition, y + CheckBox.HEIGHT / 2f, CheckBox.HANDLE_HOVER / 2f, r.HoverPaint);
         }
+        c.DrawCircle(r.HandlePosition, y + CheckBox.HEIGHT / 2f, r.HandleSize / 2f, r.HandlePaint);
     }
 
     // 3) update / theme reaction ------------------------------------
     public override void OnUpdateRenderState(CheckBox e, CheckBoxRenderState r)
     {
-        r.BorderPaint.Color = e.Foreground;
-        r.BorderPaint.IsAntialias = true;
-        r.BorderPaint.Style = SKPaintStyle.Stroke;
-        r.BorderPaint.StrokeWidth = 1.1f;
+        // ---------- upfront colour decisions ----------
+        var handleOn = e.Foreground != SKColor.Empty ? e.Foreground : _theme.AccentBright;
+        var backOn = e.Background != SKColor.Empty ? e.Background : _theme.AccentColor;
 
-        r.BoxPaint.Color = e.IsEnabled ? _theme.BackgroundColor : _theme.BackgroundColor.WithAlpha(80);
-        r.BoxPaint.Style = SKPaintStyle.Fill;
-        r.BoxPaint.IsAntialias = true;
-
-        r.TickPaint.Color = e.Foreground;
-        r.TickPaint.Style = SKPaintStyle.Stroke;
-        r.TickPaint.IsAntialias = true;
-        r.TickPaint.StrokeWidth = 2.2f;
-        
-        if (e.IsChecked != r.PreviousCheckedState)
+        // ---------- quick helpers ----------
+        void InitPaint(SKPaint p, SKPaintStyle style, float stroke = 0, SKColor? color = null)
         {
-            r.PreviousCheckedState = e.IsChecked;
-            if (e.IsChecked)
+            p.Style = style;
+            p.IsAntialias = true;
+            if (stroke > 0) p.StrokeWidth = stroke;
+            if (color.HasValue) p.Color = color.Value;
+        }
+
+        void SetEnabledColours(bool enabled)
+        {
+            if (enabled)
             {
-                r.Animations["ColorFader"].Start(r.BoxPaint.Color, e.Foreground);
+                var on = handleOn;      // cache captured locals
+                var off = _theme.OffColor;
+
+                r.BorderPaint.Color = backOn;
+                r.HandlePaint.Color = e.IsChecked ? on : off;
+                r.BackgroundPaint.Color = e.IsChecked ? backOn : off.WithAlpha(80);
             }
             else
             {
-                r.Animations["ColorFader"].Start(e.Foreground, r.BoxPaint.Color);
+                var disabled = _theme.DisabledColor;
+                r.BorderPaint.Color = disabled;
+                r.HandlePaint.Color = disabled;
+                r.BackgroundPaint.Color = disabled.WithAlpha(80);
             }
         }
+
+        void StartCheckAnimations(bool isChecked)
+        {
+            r.Animations["HandlePosition"].Start(
+                isChecked ? CheckBox.HEIGHT / 2f : CheckBox.WIDTH - CheckBox.HEIGHT / 2f,
+                isChecked ? CheckBox.WIDTH - CheckBox.HEIGHT / 2f : CheckBox.HEIGHT / 2f);
+
+            r.Animations["HandleColor"].Start(
+                isChecked ? _theme.OffColor : handleOn,
+                isChecked ? handleOn : _theme.OffColor);
+
+            r.Animations["BackgroundColor"].Start(
+                isChecked ? _theme.OffColor : backOn,
+                isChecked ? backOn : _theme.OffColor.WithAlpha(80));
+
+            r.Animations["HandleSize"].Start(
+                r.HandleSize,
+                isChecked ? CheckBox.HANDLE_ON : CheckBox.HANDLE_OFF);
+        }
+
+        void StartPressAnimation(bool pressed) =>
+            r.Animations["HandleSize"].Start(
+                r.HandleSize,
+                pressed ? CheckBox.HANDLE_PRESSED
+                        : (e.IsChecked ? CheckBox.HANDLE_ON : CheckBox.HANDLE_OFF));
+
+        // ---------- one-time paint setup (safe to run every call) ----------
+        InitPaint(r.BorderPaint, SKPaintStyle.Stroke, _theme.Thickness, backOn);
+        InitPaint(r.BackgroundPaint, SKPaintStyle.Fill);
+        InitPaint(r.HandlePaint, SKPaintStyle.Fill);
+        InitPaint(r.HoverPaint, SKPaintStyle.Fill, 0, _theme.HoverColor);
+
+        // ---------- state-driven updates ----------
+        if (e.IsEnabled != r.PreviousEnabledState)
+        {
+            r.PreviousEnabledState = e.IsEnabled;
+            SetEnabledColours(e.IsEnabled);
+        }
+
+        if (e.IsChecked != r.PreviousCheckedState)
+        {
+            r.PreviousCheckedState = e.IsChecked;
+            StartCheckAnimations(e.IsChecked);
+        }
+        
+        if (e.IsPressed != r.PreviousPressedState)
+        {
+            r.PreviousPressedState = e.IsPressed;
+            StartPressAnimation(e.IsPressed);
+        }
     }
+
+
+
 }

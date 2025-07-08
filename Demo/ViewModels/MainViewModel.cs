@@ -12,6 +12,7 @@ public class MainViewModel : ViewModelBase
     //Title property
     private string _title = "Chnuschti Demo Application";
     private bool _isButtonEnabled = true;
+    private bool _isCheckboxEnabled = true;
 
     public ICommand ChangeTitle { get; set; }
 
@@ -41,5 +42,11 @@ public class MainViewModel : ViewModelBase
     {
         get => _isButtonEnabled;
         set => SetProperty(ref _isButtonEnabled, value);
+    }
+
+    public bool IsCheckboxEnabled
+    {
+        get => _isCheckboxEnabled;
+        set => SetProperty(ref _isCheckboxEnabled, value);
     }
 }

@@ -2,6 +2,7 @@
 using Chnuschti.Controls;
 using Chnuschti.Themes.Default;
 using Demo.ViewModels;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,9 +45,18 @@ public class MainWindow : Screen
             Margin = new Thickness(4)
         };
         cb.SetBinding(CheckBox.IsCheckedProperty, this.TwoWayToDC((MainViewModel mvm) => mvm.IsButtonEnabled));
-        cb.Content.Padding = new Thickness(0,4,4,4);
-
-
+        cb.SetBinding(Button.IsEnabledProperty, this.OneWayToDC((MainViewModel mvm) => mvm.IsCheckboxEnabled));
         cb.AddTo(Content);
+
+        var cb2 = new CheckBox
+        {
+            Content = "Enabled",
+            Margin = new Thickness(4),
+            Foreground = SKColors.Green.AdjBrightness(61),
+            Background = SKColors.Green,
+        };
+        cb2.SetBinding(CheckBox.IsCheckedProperty, this.TwoWayToDC((MainViewModel mvm) => mvm.IsCheckboxEnabled));
+        cb2.AddTo(Content);
+
     }
 }

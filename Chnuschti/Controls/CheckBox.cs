@@ -9,6 +9,13 @@ namespace Chnuschti.Controls
 {
     public sealed class CheckBox : ContentControl
     {
+        public const float WIDTH = 52;
+        public const float HEIGHT = 32;
+        public const float HANDLE_OFF = 16f;
+        public const float HANDLE_ON = 24f;
+        public const float HANDLE_PRESSED = 28f;
+        public const float HANDLE_HOVER = 40f;
+
         public CheckBox()
         {
             // Pick up the default style from the active theme
@@ -38,16 +45,12 @@ namespace Chnuschti.Controls
             base.OnClick(sender, e);
         }
 
-        // ---- custom layout (reserve room for the check box) ------------
-        private const float BOX_SIZE = 16f;
-        private const float SPACING = 0f;
-
         protected override void ArrangeContent(SKRect contentRect)
         {
             if (Content == null) return;
 
             var childRect = new SKRect(
-                contentRect.Left + BOX_SIZE + SPACING,
+                contentRect.Left + CheckBox.WIDTH,
                 contentRect.Top,
                 contentRect.Right,
                 contentRect.Bottom);

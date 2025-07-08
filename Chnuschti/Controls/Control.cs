@@ -13,8 +13,8 @@ public class Control : DataElement
     public static readonly DependencyProperty IsEnabledProperty = DependencyProperty.Register(nameof(IsEnabled), typeof(bool), typeof(Control), new PropertyMetadata(true, OnIsEnabledChanged, inherits: true));
     public static readonly DependencyProperty FontSizeProperty = DependencyProperty.Register(nameof(FontSize), typeof(float), typeof(Control), new PropertyMetadata(14f, OnInvalidateDrawResources));
     public static readonly DependencyProperty FontFamilyProperty = DependencyProperty.Register(nameof(FontFamily), typeof(string), typeof(Control), new PropertyMetadata(null, OnInvalidateDrawResources));
-    public static readonly DependencyProperty ForegroundProperty = DependencyProperty.Register(nameof(Foreground), typeof(SKColor), typeof(Control), new PropertyMetadata(SKColors.Black, OnInvalidateDrawResources));
-    public static readonly DependencyProperty BackgroundProperty = DependencyProperty.Register(nameof(Background), typeof(SKColor), typeof(Control), new PropertyMetadata(SKColors.SlateGray));
+    public static readonly DependencyProperty ForegroundProperty = DependencyProperty.Register(nameof(Foreground), typeof(SKColor), typeof(Control), new PropertyMetadata(SKColors.Empty, OnInvalidateDrawResources));
+    public static readonly DependencyProperty BackgroundProperty = DependencyProperty.Register(nameof(Background), typeof(SKColor), typeof(Control), new PropertyMetadata(SKColors.Empty));
     public static readonly DependencyProperty BoldProperty = DependencyProperty.Register(nameof(Bold), typeof(bool), typeof(Control), new PropertyMetadata(false, OnInvalidateDrawResources));
 
     public bool IsEnabled
@@ -83,6 +83,7 @@ public class Control : DataElement
     public virtual void MouseLeave(SKPoint screenPt)
     {
         IsMouseOver = false;
+        IsPressed = false; // reset pressed state when mouse leaves
     }
 
     protected virtual void OnClick(object? sender, EventArgs e)

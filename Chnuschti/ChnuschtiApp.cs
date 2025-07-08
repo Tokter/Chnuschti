@@ -29,7 +29,7 @@ public class ChnuschtiApp
 
     private Control? _capturedControl; // The control that has captured the mouse
 
-    public float Scale { get; set; } = 2.0f;
+    public float Scale { get; set; } = 1.0f;
     public float ScreenWidth { get; set; }
     public float ScreenHeight { get; set; }
 
