@@ -18,7 +18,7 @@ public class ContentControl : Control
     // --------------------------------------------------------------------
     //  Dependency-property : Content
     // --------------------------------------------------------------------
-    public static readonly DependencyProperty ContentProperty = DependencyProperty.Register(nameof(Content), typeof(Control), typeof(ContentControl), new PropertyMetadata(null, OnContentChanged));
+    public static readonly DependencyProperty ContentProperty = DependencyProperty.Register(nameof(Content), typeof(Control), typeof(ContentControl), new PropertyMetadata(null, OnContentChanged, inherits: false));
 
     /// <summary>The single child element. May be null.</summary>
     public Control? Content

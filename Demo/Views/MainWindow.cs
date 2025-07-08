@@ -41,7 +41,7 @@ public class MainWindow : Screen
 
         var cb = new CheckBox
         {
-            Content = "CheckBox",
+            Content = "Button Enabled",
             Margin = new Thickness(4)
         };
         cb.SetBinding(CheckBox.IsCheckedProperty, this.TwoWayToDC((MainViewModel mvm) => mvm.IsButtonEnabled));
@@ -50,7 +50,7 @@ public class MainWindow : Screen
 
         var cb2 = new CheckBox
         {
-            Content = "Enabled",
+            Content = new Icon { IconKind = IconKind.AccountAlertOutline },
             Margin = new Thickness(4),
             Foreground = SKColors.Green.AdjBrightness(61),
             Background = SKColors.Green,
@@ -58,5 +58,6 @@ public class MainWindow : Screen
         cb2.SetBinding(CheckBox.IsCheckedProperty, this.TwoWayToDC((MainViewModel mvm) => mvm.IsCheckboxEnabled));
         cb2.AddTo(Content);
 
+        new Icon { }.AddTo(Content);
     }
 }

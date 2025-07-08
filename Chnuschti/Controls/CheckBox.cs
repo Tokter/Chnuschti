@@ -20,6 +20,7 @@ namespace Chnuschti.Controls
         {
             // Pick up the default style from the active theme
             Style = ThemeManager.Current.Resources.Get<CheckBox, Style>();
+            InvalidateDrawResources();
         }
 
         // ---- dependency-properties -------------------------------------

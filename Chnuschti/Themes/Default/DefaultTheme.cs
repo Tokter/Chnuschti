@@ -39,6 +39,8 @@ public class DefaultTheme : Theme
                 .Add<StackPanel, Style>(StackPanelStyle.CreateStyle())
                 .Add<ContentControl, Style>(ContentControlStyle.CreateStyle())
                 .Add<Button, Style>(ButtonStyle.CreateStyle(this))
-                .Add<CheckBox, Style>(CheckboxStyle.CreateStyle(this));
+                .Add<CheckBox, Style>(CheckboxStyle.CreateStyle(this))
+                .Add<Icon, Style>(IconStyle.CreateStyle(this))
+                ;
     }
 }
