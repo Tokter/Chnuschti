@@ -11,11 +11,11 @@ namespace Chnuschti.Controls;
 public class Control : DataElement
 {
     public static readonly DependencyProperty IsEnabledProperty = DependencyProperty.Register(nameof(IsEnabled), typeof(bool), typeof(Control), new PropertyMetadata(true, OnIsEnabledChanged, inherits: true));
-    public static readonly DependencyProperty FontSizeProperty = DependencyProperty.Register(nameof(FontSize), typeof(float), typeof(Control), new PropertyMetadata(14f, OnInvalidateDrawResources));
-    public static readonly DependencyProperty FontFamilyProperty = DependencyProperty.Register(nameof(FontFamily), typeof(string), typeof(Control), new PropertyMetadata(null, OnInvalidateDrawResources));
-    public static readonly DependencyProperty ForegroundProperty = DependencyProperty.Register(nameof(Foreground), typeof(SKColor), typeof(Control), new PropertyMetadata(SKColors.Empty, OnInvalidateDrawResources));
-    public static readonly DependencyProperty BackgroundProperty = DependencyProperty.Register(nameof(Background), typeof(SKColor), typeof(Control), new PropertyMetadata(SKColors.Empty));
-    public static readonly DependencyProperty BoldProperty = DependencyProperty.Register(nameof(Bold), typeof(bool), typeof(Control), new PropertyMetadata(false, OnInvalidateDrawResources));
+    public static readonly DependencyProperty FontSizeProperty = DependencyProperty.Register(nameof(FontSize), typeof(float), typeof(Control), new PropertyMetadata(14f, OnInvalidateDrawResources, inherits: true));
+    public static readonly DependencyProperty FontFamilyProperty = DependencyProperty.Register(nameof(FontFamily), typeof(string), typeof(Control), new PropertyMetadata("Segoe UI", OnInvalidateDrawResources, inherits: true));
+    public static readonly DependencyProperty ForegroundProperty = DependencyProperty.Register(nameof(Foreground), typeof(SKColor), typeof(Control), new PropertyMetadata(SKColors.Empty, OnInvalidateDrawResources, inherits: true));
+    public static readonly DependencyProperty BackgroundProperty = DependencyProperty.Register(nameof(Background), typeof(SKColor), typeof(Control), new PropertyMetadata(SKColors.Empty, inherits: true));
+    public static readonly DependencyProperty BoldProperty = DependencyProperty.Register(nameof(Bold), typeof(bool), typeof(Control), new PropertyMetadata(false, OnInvalidateDrawResources, inherits: true));
     public static readonly DependencyProperty HorizontalContentAlignmentProperty = DependencyProperty.Register(nameof(HorizontalContentAlignment), typeof(HorizontalAlignment), typeof(Control), new PropertyMetadata(HorizontalAlignment.Left, OnInvalidateDrawResources));
     public static readonly DependencyProperty VerticalContentAlignmentProperty = DependencyProperty.Register(nameof(VerticalContentAlignment), typeof(VerticalAlignment), typeof(Control), new PropertyMetadata(VerticalAlignment.Top, OnInvalidateDrawResources));
     public bool IsEnabled

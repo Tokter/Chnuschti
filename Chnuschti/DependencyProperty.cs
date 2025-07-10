@@ -15,7 +15,7 @@ public sealed class PropertyMetadata
     public PropertyChangedCallback? PropertyChangedCallback { get; init; }
     public bool Inherits { get; init; }
 
-    public PropertyMetadata(object? defaultValue = null, PropertyChangedCallback? cb = null, bool inherits = true)
+    public PropertyMetadata(object? defaultValue = null, PropertyChangedCallback? cb = null, bool inherits = false)
     {
         DefaultValue = defaultValue;
         PropertyChangedCallback = cb;

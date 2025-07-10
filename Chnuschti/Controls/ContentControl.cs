@@ -11,14 +11,12 @@ public class ContentControl : Control
 {
     public ContentControl()
     {
-        //Get the default style from the current theme
-        Style = ThemeManager.Current.Resources.Get<ContentControl, Style>();
     }
 
     // --------------------------------------------------------------------
     //  Dependency-property : Content
     // --------------------------------------------------------------------
-    public static readonly DependencyProperty ContentProperty = DependencyProperty.Register(nameof(Content), typeof(Control), typeof(ContentControl), new PropertyMetadata(null, OnContentChanged, inherits: false));
+    public static readonly DependencyProperty ContentProperty = DependencyProperty.Register(nameof(Content), typeof(Control), typeof(ContentControl), new PropertyMetadata(null, OnContentChanged));
 
     /// <summary>The single child element. May be null.</summary>
     public Control? Content

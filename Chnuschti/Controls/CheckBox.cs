@@ -18,8 +18,7 @@ namespace Chnuschti.Controls
 
         public CheckBox()
         {
-            // Pick up the default style from the active theme
-            Style = ThemeManager.Current.Resources.Get<CheckBox, Style>();
+            VerticalContentAlignment = VerticalAlignment.Center; // Center the content vertically
             InvalidateDrawResources();
         }
 
@@ -57,7 +56,15 @@ namespace Chnuschti.Controls
                 contentRect.Bottom);
 
             childRect = ShrinkBy(childRect, Content.Margin);
-            Content.Arrange(childRect);
+
+            // Use the desiredSize for the content (minus margins)
+            var desiredWidth = Content.DesiredSize.Width - Content.Margin.Horizontal;
+            var desiredHeight = Content.DesiredSize.Height - Content.Margin.Vertical;
+
+            // Apply alignment
+            var alignedRect = ApplyAlignment(childRect, desiredWidth, desiredHeight);
+
+            Content.Arrange(alignedRect);
         }
     }
 }

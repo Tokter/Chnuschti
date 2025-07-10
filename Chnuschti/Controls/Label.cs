@@ -11,8 +11,6 @@ public sealed class Label : Control
 {
     public Label()
     {
-        //Get the default style from the current theme
-        Style = ThemeManager.Current.Resources.Get<Label, Style>();
         IsHitTestVisible = false; // Labels are not interactive by default
     }
 

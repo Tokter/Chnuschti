@@ -11,8 +11,6 @@ public class Button : ContentControl
 {
     public Button()
     {
-        //Get the default style from the current theme
-        Style = ThemeManager.Current.Resources.Get<Button,Style>();
     }
 
     // ---- dependency-properties -----------------------------------------

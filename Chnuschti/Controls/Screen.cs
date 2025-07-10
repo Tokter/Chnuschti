@@ -14,8 +14,6 @@ public class Screen : ContentControl
 
     public Screen()
     {
-        //Get the default style from the current theme
-        Style = ThemeManager.Current.Resources.Get<Screen, Style>();
     }
 
     public void SetSize(float width, float height)

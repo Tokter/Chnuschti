@@ -5,6 +5,7 @@ using Demo.ViewModels;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,15 +23,64 @@ public class MainWindow : Screen
 
     private void InitializeComponent()
     {
-        VisualElement.ShowLayoutDebug = true;
+        VisualElement.ShowLayoutDebug = false;
 
+        Content = new ItemsControl
+        {
+            ItemsPanel = new StackPanel
+            {
+                Orientation = Orientation.Vertical,
+                HorizontalContentAlignment = HorizontalAlignment.Stretch,
+                VerticalContentAlignment = VerticalAlignment.Stretch,
+                Padding = new Thickness(5),
+            }, 
+            ItemTemplate = new DataTemplate<Person>(p =>
+            {
+                var sp = new StackPanel
+                {
+                    Orientation = Orientation.Horizontal,
+                    HorizontalContentAlignment = HorizontalAlignment.Stretch,
+                    VerticalContentAlignment = VerticalAlignment.Center,
+                    Margin = new Thickness(4),
+                };
+                sp.Add(
+                    new Icon { IconKind = IconKind.Account, Margin = new Thickness(4) },
+                    new Label
+                    {
+                        Text = p.Name,
+                        Margin = new Thickness(4),
+                        HorizontalContentAlignment = HorizontalAlignment.Stretch,
+                        VerticalContentAlignment = VerticalAlignment.Center,
+                        StyleKey = "LabelLarge",
+                        MinWidth = 100,
+                    },
+                    new Label
+                    {
+                        Text = p.Age.ToString(),
+                        Margin = new Thickness(4),
+                        HorizontalContentAlignment = HorizontalAlignment.Stretch,
+                        VerticalContentAlignment = VerticalAlignment.Center,
+                    });
+                return sp;
+            })
+        };
+        Content.SetBinding(ItemsControl.ItemsSourceProperty, this.OneWayToDC<MainViewModel, ObservableCollection<Person>>(mvm => mvm.People));
+        
+
+        /*
         Content = new StackPanel()
         {
             Padding = new Thickness(5),
             HorizontalContentAlignment = HorizontalAlignment.Stretch,
         };
 
-        new Label { Text = "Alice", Margin = new Thickness(4), Bold = true }
+        new Label
+        {
+            Text = "Alice", 
+            Margin = new Thickness(4), 
+            //Bold = true,
+            StyleKey = "LabelLarge",
+        }
         .AddTo(Content)
         .SetBinding(Label.TextProperty, this.OneWayToDC<MainViewModel, string>(mvm => mvm.Title));
 
@@ -43,7 +93,12 @@ public class MainWindow : Screen
             VerticalContentAlignment = VerticalAlignment.Center,
         }.AddTo(Content);
 
-        new Label { Text = "Carol", Margin = new Thickness(4) }.AddTo(Content);
+        new Label 
+        {
+            Text = "Carol", 
+            Margin = new Thickness(4),
+            StyleKey = "LabelSmall",
+        }.AddTo(Content);
         _button = new Button
         {
             Content = "Click me",
@@ -67,7 +122,7 @@ public class MainWindow : Screen
 
         var cb2 = new CheckBox
         {
-            Content = new Icon { IconKind = IconKind.Account },
+            Content = new Icon { IconKind = IconKind.Account, Margin = new Thickness(4) },
             Margin = new Thickness(4),
             Foreground = SKColors.Green.AdjBrightness(61),
             Background = SKColors.Green,
@@ -82,6 +137,7 @@ public class MainWindow : Screen
             Height = 200,
             HorizontalContentAlignment = HorizontalAlignment.Stretch,
             VerticalContentAlignment = VerticalAlignment.Stretch,
-        }.AddTo(Content);
+        }.AddTo(Content); 
+        */
     }
 }

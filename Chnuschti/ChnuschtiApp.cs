@@ -61,7 +61,7 @@ public class ChnuschtiApp
         };
         using var font = new SKFont
         {
-            Size = 12 * Screen.ScaleY,
+            Size = 16 * Screen.ScaleY,
         };
         canvas.DrawText($"Mouse: {MousePosX / Scale:F2}, {MousePosY / Scale:F2}", 10 * Scale, ScreenHeight - 10 * Scale, font, paint);
 

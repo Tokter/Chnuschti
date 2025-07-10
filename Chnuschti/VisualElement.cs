@@ -13,8 +13,67 @@ public class VisualElement : DependencyObject, IDisposable
     public long Id { get; } = Interlocked.Increment(ref _idCounter);
     private static long _idCounter;
 
-    #region Layout
+    #region Style
     private Style? _style;
+    private string _styleKey = string.Empty; // key for style lookup
+
+    public Style? Style
+    {
+        get
+        {
+            if (_style == null)
+            {
+                LookupStyle(); // lazy lookup
+            }
+            return _style;
+        }
+        set
+        {
+            if (_style != value)
+            {
+                LookupStyle();
+            }
+        }
+    }
+
+    public string StyleKey
+    {
+        get => _styleKey;
+        set
+        {
+            if (_styleKey != value)
+            {
+                _styleKey = value;
+                LookupStyle();
+            }
+        }
+    }
+
+    private void LookupStyle()
+    {
+        var thisType = this.GetType();
+        Style? newStyle = null;
+        do
+        {
+            newStyle = ThemeManager.Current.Resources.Get<Style>(thisType, _styleKey);
+            if (newStyle == null)
+            {
+                thisType = thisType.BaseType; // walk up the inheritance chain
+            }
+        } while (newStyle == null && thisType != null);
+
+
+        if (newStyle != null && newStyle != _style)
+        {
+            var oldStyle = _style;
+            _style = newStyle;
+            ChangeStyle(oldStyle, _style);
+        }
+    }
+
+    #endregion
+
+    #region Layout
     private bool _localDirty = true;   // local 2-D transform changed
     private bool _worldDirty = true;   // parent or local changed
     private SKMatrix _localMatrix;     // cached translation·rotation·scale→parent
@@ -22,20 +81,6 @@ public class VisualElement : DependencyObject, IDisposable
     private SKMatrix _invWorldMatrix;  // inverse of world matrix
     private bool _isMeasureValid;
     private bool _isArrangeValid;
-
-    public Style? Style
-    {
-        get => _style;
-        set
-        {
-            if (_style != value)
-            {
-                var oldStyle = _style;
-                _style = value;
-                ChangeStyle(oldStyle, _style);
-            }
-        }
-    }
 
     public static readonly DependencyProperty MarginProperty = DependencyProperty.Register(nameof(Margin), typeof(Thickness), typeof(VisualElement), new PropertyMetadata(new Thickness()));
     public static readonly DependencyProperty PaddingProperty = DependencyProperty.Register(nameof(Padding), typeof(Thickness), typeof(VisualElement), new PropertyMetadata(new Thickness()));
@@ -248,11 +293,20 @@ public class VisualElement : DependencyObject, IDisposable
     private readonly List<VisualElement> _children = new();
     public IReadOnlyList<VisualElement> Children => _children;
 
-    public void Add(VisualElement child)
+    public VisualElement Add(VisualElement child)
     {
         child.ParentInternal = this;
         _children.Add(child);
         this.InvalidateMeasure(); // child added, measure may change
+        return this;
+    }
+
+    public void Add(params VisualElement[] children)
+    {
+        foreach (var child in children)
+        {
+            Add(child);
+        }
     }
 
     protected void ReplaceVisualChild(VisualElement? oldChild, VisualElement? newChild)

@@ -17,6 +17,7 @@ public class Platform : IPlatform
     public Platform(SKGLControl control, ChnuschtiApp application)
     {
         _control = control;
+
         _control.Resize += Control_Resize;
         _control.PaintSurface += Control_PaintSurface;
         _control.KeyDown += Control_KeyDown;

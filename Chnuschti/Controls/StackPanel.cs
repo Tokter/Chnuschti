@@ -9,17 +9,10 @@ public sealed class StackPanel : Control
 {
     public StackPanel()
     {
-        //Get the default style from the current theme
-        Style = ThemeManager.Current.Resources.Get<StackPanel, Style>();
     }
 
     // -------- Orientation dependency-property ----------------------------
-    public static readonly DependencyProperty OrientationProperty =
-        DependencyProperty.Register(
-            nameof(Orientation),
-            typeof(Orientation),
-            typeof(StackPanel),
-            new PropertyMetadata(Orientation.Vertical, OnOriented));
+    public static readonly DependencyProperty OrientationProperty = DependencyProperty.Register(nameof(Orientation), typeof(Orientation), typeof(StackPanel), new PropertyMetadata(Orientation.Vertical, OnOriented));
 
     public Orientation Orientation
     {
@@ -35,6 +28,60 @@ public sealed class StackPanel : Control
             sp.InvalidateMeasure();   // this also invalidates arrange & matrices
     }
 
+    // -------- ARRANGE  ----------------------------------------------------
+    // positions each child's layout slot one after another
+    protected override void ArrangeContent(SKRect content)
+    {
+        float x = content.Left;
+        float y = content.Top;
+
+        foreach (var child in Children)
+        {
+            if (!child.IsVisible)
+                continue;
+
+            var childDesiredSize = child.DesiredSize;
+
+            // Calculate child rectangle based on orientation
+            SKRect childRect;
+            if (Orientation == Orientation.Vertical)
+            {
+                // For vertical orientation, stack items from top to bottom
+                childRect = new SKRect(
+                    content.Left,
+                    y,
+                    content.Right,
+                    y + childDesiredSize.Height - child.Margin.Vertical
+                );
+
+                // Update y position for next child
+                y += childDesiredSize.Height;
+            }
+            else
+            {
+                // For horizontal orientation, stack items from left to right
+                childRect = new SKRect(
+                    x,
+                    content.Top,
+                    x + childDesiredSize.Width - child.Margin.Horizontal,
+                    content.Bottom
+                );
+
+                // Update x position for next child
+                x += childDesiredSize.Width;
+            }
+
+            // Apply alignment and arrange the child
+            var alignedRect = ApplyAlignment(childRect,
+                childDesiredSize.Width - child.Margin.Horizontal,
+                childDesiredSize.Height - child.Margin.Vertical);
+
+            child.Arrange(alignedRect);
+        }
+    }
+
+
+    /*
     // -------- ARRANGE  ----------------------------------------------------
     // positions each child's layout slot one after another
     protected override void ArrangeContent(SKRect content)
@@ -121,5 +168,5 @@ public sealed class StackPanel : Control
                 curX += need.Width;                   // next column
             }
         }
-    }
+    }*/
 }

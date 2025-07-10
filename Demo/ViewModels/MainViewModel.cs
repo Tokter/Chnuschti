@@ -1,6 +1,7 @@
 ﻿using Chnuschti;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,6 +14,12 @@ public class MainViewModel : ViewModelBase
     private string _title = "Chnuschti Demo Application";
     private bool _isButtonEnabled = true;
     private bool _isCheckboxEnabled = true;
+    private ObservableCollection<Person> _people = new()
+    {
+        new Person("Alice", 30),
+        new Person("Bob", 25),
+        new Person("Charlie", 35)
+    };
 
     public ICommand ChangeTitle { get; set; }
 
@@ -48,5 +55,36 @@ public class MainViewModel : ViewModelBase
     {
         get => _isCheckboxEnabled;
         set => SetProperty(ref _isCheckboxEnabled, value);
+    }
+
+    public ObservableCollection<Person> People
+    {
+        get => _people;
+        set => SetProperty(ref _people, value);
+    }
+}
+
+
+public class Person : ViewModelBase
+{
+    private string _name;
+    private int _age;
+
+    public string Name
+    {
+        get => _name;
+        set => SetProperty(ref _name, value);
+    }
+
+    public int Age
+    {
+        get => _age;
+        set => SetProperty(ref _age, value);
+    }
+
+    public Person(string name, int age)
+    {
+        _name = name;
+        _age = age;
     }
 }

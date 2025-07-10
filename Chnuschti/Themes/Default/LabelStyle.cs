@@ -10,15 +10,27 @@ namespace Chnuschti.Themes.Default;
 
 public static class LabelStyle
 {
-    public static Style CreateStyle(DefaultTheme theme)
+    public static Style CreateStyleLabelLarge(DefaultTheme theme)
     {
         var s = new Style();
-        //s.Add(Chnuschti.Button.BackgroundProperty, SKColors.DodgerBlue);
-        //s.Add(Chnuschti.Button.PaddingProperty, new Thickness(12, 6, 12, 6));
-        //s.Add(Chnuschti.Button.ForegroundProperty, SKColors.Black);
-
+        s.Add(Screen.FontSizeProperty, 16f);
         s.Renderer = new LabelRenderer(theme);
+        return s;
+    }
 
+    public static Style CreateStyleLabelMedium(DefaultTheme theme)
+    {
+        var s = new Style();
+        s.Add(Screen.FontSizeProperty, 14f);
+        s.Renderer = new LabelRenderer(theme);
+        return s;
+    }
+
+    public static Style CreateStyleLabelSmall(DefaultTheme theme)
+    {
+        var s = new Style();
+        s.Add(Screen.FontSizeProperty, 12f);
+        s.Renderer = new LabelRenderer(theme);
         return s;
     }
 }
@@ -79,7 +91,7 @@ public class LabelRenderer : Renderer<Label, LabelRenderState>
         }
 
         // Draw text at calculated position
-        canvas.DrawText(txt, x, y, resource.Font, resource.Paint);
+        canvas.DrawText(txt, (float)Math.Round(x), (float)Math.Round(y), resource.Font, resource.Paint);
     }
 
     public override SKSize OnMeasure(Label element, LabelRenderState resource, SKSize availableContent)
@@ -111,9 +123,10 @@ public class LabelRenderer : Renderer<Label, LabelRenderState>
 
         r.Font.Typeface = string.IsNullOrEmpty(e.FontFamily)
                               ? SKTypeface.Default
-                              : SKTypeface.FromFamilyName(e.FontFamily);
+                              : SKTypeface.FromFamilyName(e.FontFamily, new SKFontStyle(400, 32, SKFontStyleSlant.Upright));
         r.Font.Embolden = e.Bold;
         r.Font.Subpixel = true; // enable subpixel rendering for better text quality
+        r.Font.Edging = SKFontEdging.SubpixelAntialias;
         r.Paint.IsAntialias = true; // enable antialiasing for better text rendering
     }
 }

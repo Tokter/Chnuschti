@@ -16,8 +16,8 @@ public class Icon : Control
 
     public Icon()
     {
-        //Get the default style from the current theme
-        Style = ThemeManager.Current.Resources.Get<Icon, Style>();
+        HorizontalContentAlignment = HorizontalAlignment.Center; // Icons are centered by default
+        VerticalContentAlignment = VerticalAlignment.Center; // Icons are centered by default
         IsHitTestVisible = false; // Labels are not interactive by default
     }
 

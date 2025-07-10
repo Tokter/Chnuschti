@@ -54,17 +54,37 @@ public class ResourceDictionary
     /// key.</param>
     /// <returns>The resource associated with the specified storage type, data type, and key.</returns>
     /// <exception cref="KeyNotFoundException">Thrown if the specified storage type, data type, or key does not exist in the storage dictionary.</exception>
-    public TData Get<TStorage,TData>(string key = "")
+    public TData? Get<TStorage,TData>(string key = "")
     {
-        _storage.TryGetValue(typeof (TStorage), out var storageType);
-        if (storageType == null) throw new KeyNotFoundException($"Could not find storage type '{typeof(TStorage).Name}' in this ResourceDictionary!");
+        return Get<TData>(typeof(TStorage), key);
+    }
+
+    /// <summary>
+    /// Retrieves a resource of the specified data type from the given storage type using an optional key.
+    /// </summary>
+    /// <typeparam name="TData">The type of the data to retrieve.</typeparam>
+    /// <param name="tStorage">The type of the storage from which to retrieve the data.</param>
+    /// <param name="key">An optional key to identify the specific resource. Defaults to an empty string.</param>
+    /// <returns>The resource of type <typeparamref name="TData"/> associated with the specified key.</returns>
+    /// <exception cref="KeyNotFoundException">Thrown if the specified storage type, data type, or key is not found in the resource dictionary.</exception>
+    public TData? Get<TData>(Type tStorage, string key = "")
+    {
+        _storage.TryGetValue(tStorage, out var storageType);
+        if (storageType == null) return default(TData);
 
         storageType.TryGetValue(typeof(TData), out var dataType);
-        if (dataType == null) throw new KeyNotFoundException($"Could not find data type '{typeof(TData).Name}' in storage type '{typeof(TStorage).Name}' in this ResourceDictionary!");
+        if (dataType == null) return default(TData);
 
         dataType.TryGetValue(key, out var resource);
-        if (resource == null) throw new KeyNotFoundException($"Could not find key '{key}' of data type {typeof(TData).Name} in storage type '{typeof(TStorage).Name}' in this ResourceDictionary!");
+        if (resource == null)
+        {
+            //If a key was provided and no resource was found, retun the default
+            if (!string.IsNullOrEmpty(key))
+            {
+                dataType.TryGetValue(string.Empty, out resource);
+            }
+        }
 
-        return (TData)resource;
+        return (TData?)resource;
     }
 }

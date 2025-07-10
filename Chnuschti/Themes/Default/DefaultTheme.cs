@@ -35,9 +35,12 @@ public class DefaultTheme : Theme
 
         Resources
                 .Add<Screen, Style>(ScreenStyle.CreateStyle(this))
-                .Add<Label, Style>(LabelStyle.CreateStyle(this))
+                .Add<Label, Style>(LabelStyle.CreateStyleLabelLarge(this), "LabelLarge")
+                .Add<Label, Style>(LabelStyle.CreateStyleLabelMedium(this), string.Empty) // default label style
+                .Add<Label, Style>(LabelStyle.CreateStyleLabelSmall(this), "LabelSmall")
                 .Add<StackPanel, Style>(StackPanelStyle.CreateStyle())
                 .Add<ContentControl, Style>(ContentControlStyle.CreateStyle())
+                .Add<ItemsControl, Style>(ItemsControlStyle.CreateStyle())
                 .Add<Button, Style>(ButtonStyle.CreateStyle(this))
                 .Add<CheckBox, Style>(CheckboxStyle.CreateStyle(this))
                 .Add<Icon, Style>(IconStyle.CreateStyle(this))
