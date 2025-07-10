@@ -8,13 +8,11 @@ using System.Threading.Tasks;
 
 namespace Chnuschti.Themes.Default;
 
-public static class ContentControlStyle
+public class ContentControlStyle : Style
 {
-    public static Style CreateStyle()
+    public ContentControlStyle(DefaultTheme theme)
     {
-        var s = new Style();
-        s.Renderer = new ContentControlRenderer();
-        return s;
+        Renderer = new ContentControlRenderer();
     }
 }
 

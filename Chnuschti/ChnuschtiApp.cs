@@ -19,6 +19,7 @@ public class ChnuschtiApp
 
     public void Configure()
     {
+        HotReloadManager.RegisterApp(this);
         OnStartup();
     }
 

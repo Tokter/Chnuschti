@@ -8,13 +8,11 @@ using System.Threading.Tasks;
 
 namespace Chnuschti.Themes.Default;
 
-public static class IconStyle
+public class IconStyle : Style
 {
-    public static Style CreateStyle(DefaultTheme theme)
+    public IconStyle(DefaultTheme theme)
     {
-        var s = new Style();
-        s.Renderer = new IconRenderer(theme);
-        return s;
+        Renderer = new IconRenderer(theme);
     }
 }
 

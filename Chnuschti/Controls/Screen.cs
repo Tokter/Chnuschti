@@ -14,11 +14,27 @@ public class Screen : ContentControl
 
     public Screen()
     {
+        InitializeComponent();
+        HotReloadManager.RegisterScreen(this);
     }
 
     public void SetSize(float width, float height)
     {
         Measure(new SKSize(width, height));
         Arrange(new SKRect(0, 0, width, height));
+    }
+
+    protected virtual void InitializeComponent()
+    {
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            HotReloadManager.UnregisterScreen(this);
+        }
+
+        base.Dispose(disposing);
     }
 }

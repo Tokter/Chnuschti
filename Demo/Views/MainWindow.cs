@@ -16,12 +16,7 @@ public class MainWindow : Screen
 {
     private Button? _button;
 
-    public MainWindow()
-    {
-        InitializeComponent();
-    }
-
-    private void InitializeComponent()
+    protected override void InitializeComponent()
     {
         VisualElement.ShowLayoutDebug = false;
 
@@ -52,7 +47,7 @@ public class MainWindow : Screen
                         HorizontalContentAlignment = HorizontalAlignment.Stretch,
                         VerticalContentAlignment = VerticalAlignment.Center,
                         StyleKey = "LabelLarge",
-                        MinWidth = 100,
+                        MinWidth = 120,
                     },
                     new Label
                     {

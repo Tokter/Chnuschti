@@ -8,30 +8,31 @@ using System.Threading.Tasks;
 
 namespace Chnuschti.Themes.Default;
 
-public static class LabelStyle
+
+public class LabelLargeStyle : Style
 {
-    public static Style CreateStyleLabelLarge(DefaultTheme theme)
+    public LabelLargeStyle(DefaultTheme theme)
     {
-        var s = new Style();
-        s.Add(Screen.FontSizeProperty, 16f);
-        s.Renderer = new LabelRenderer(theme);
-        return s;
+        Add(Screen.FontSizeProperty, 16f);
+        Renderer = new LabelRenderer(theme);
     }
+}
 
-    public static Style CreateStyleLabelMedium(DefaultTheme theme)
+public class LabelMediumStyle : Style
+{
+    public LabelMediumStyle(DefaultTheme theme)
     {
-        var s = new Style();
-        s.Add(Screen.FontSizeProperty, 14f);
-        s.Renderer = new LabelRenderer(theme);
-        return s;
+        Add(Screen.FontSizeProperty, 14f);
+        Renderer = new LabelRenderer(theme);
     }
+}
 
-    public static Style CreateStyleLabelSmall(DefaultTheme theme)
+public class LabelSmallStyle : Style
+{
+    public LabelSmallStyle(DefaultTheme theme)
     {
-        var s = new Style();
-        s.Add(Screen.FontSizeProperty, 12f);
-        s.Renderer = new LabelRenderer(theme);
-        return s;
+        Add(Screen.FontSizeProperty, 12f);
+        Renderer = new LabelRenderer(theme);
     }
 }
 

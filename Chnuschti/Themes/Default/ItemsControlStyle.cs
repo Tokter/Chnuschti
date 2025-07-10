@@ -3,13 +3,11 @@ using SkiaSharp;
 
 namespace Chnuschti.Themes.Default;
 
-public static class ItemsControlStyle
+public class ItemsControlStyle : Style
 {
-    public static Style CreateStyle()
+    public ItemsControlStyle(DefaultTheme theme)
     {
-        var s = new Style();
-        s.Renderer = new ItemsControlRenderer();
-        return s;
+        Renderer = new ItemsControlRenderer();
     }
 }
 

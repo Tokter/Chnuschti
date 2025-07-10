@@ -8,17 +8,13 @@ using System.Threading.Tasks;
 
 namespace Chnuschti.Themes.Default;
 
-public static class ButtonStyle
+public class ButtonStyle : Style
 {
-    public static Style CreateStyle(DefaultTheme theme)
+    public ButtonStyle(DefaultTheme theme) : base()
     {
-        var s = new Style();
-        s.Add(Button.BackgroundProperty, new SKColor(128, 128, 128, 255));
-        s.Add(Button.ForegroundProperty, SKColors.White);
-
-        s.Renderer = new ButtonRenderer(theme);
-
-        return s;
+        Add(Button.BackgroundProperty, new SKColor(128, 128, 128, 255));
+        Add(Button.ForegroundProperty, SKColors.White);
+        Renderer = new ButtonRenderer(theme);
     }
 }
 

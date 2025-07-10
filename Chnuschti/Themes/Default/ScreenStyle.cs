@@ -8,15 +8,11 @@ using System.Threading.Tasks;
 
 namespace Chnuschti.Themes.Default;
 
-public static class ScreenStyle
+public class ScreenStyle : Style
 {
-    public static Style CreateStyle(DefaultTheme theme)
+    public ScreenStyle(DefaultTheme theme)
     {
-        var s = new Style();
-        //s.Add(Screen.ForegroundProperty, SKColors.White);
-        //s.Add(Chnuschti.Button.FontFamilyProperty, "Arial");
-        s.Renderer = new ScreenRenderer(theme);
-        return s;
+        Renderer = new ScreenRenderer(theme);
     }
 }
 

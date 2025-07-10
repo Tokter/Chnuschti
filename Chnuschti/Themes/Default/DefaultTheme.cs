@@ -34,16 +34,16 @@ public class DefaultTheme : Theme
         TextColor = SKColors.White;
 
         Resources
-                .Add<Screen, Style>(ScreenStyle.CreateStyle(this))
-                .Add<Label, Style>(LabelStyle.CreateStyleLabelLarge(this), "LabelLarge")
-                .Add<Label, Style>(LabelStyle.CreateStyleLabelMedium(this), string.Empty) // default label style
-                .Add<Label, Style>(LabelStyle.CreateStyleLabelSmall(this), "LabelSmall")
-                .Add<StackPanel, Style>(StackPanelStyle.CreateStyle())
-                .Add<ContentControl, Style>(ContentControlStyle.CreateStyle())
-                .Add<ItemsControl, Style>(ItemsControlStyle.CreateStyle())
-                .Add<Button, Style>(ButtonStyle.CreateStyle(this))
-                .Add<CheckBox, Style>(CheckboxStyle.CreateStyle(this))
-                .Add<Icon, Style>(IconStyle.CreateStyle(this))
+                .Add<Screen, Style>(new ScreenStyle(this))
+                .Add<Label, Style>(new LabelLargeStyle(this), "LabelLarge")
+                .Add<Label, Style>(new LabelMediumStyle(this), string.Empty) // default label style
+                .Add<Label, Style>(new LabelSmallStyle(this), "LabelSmall")
+                .Add<StackPanel, Style>(new StackPanelStyle(this))
+                .Add<ContentControl, Style>(new ContentControlStyle(this))
+                .Add<ItemsControl, Style>(new ItemsControlStyle(this))
+                .Add<Button, Style>(new ButtonStyle(this))
+                .Add<CheckBox, Style>(new CheckboxStyle(this))
+                .Add<Icon, Style>(new IconStyle(this))
                 ;
     }
 }

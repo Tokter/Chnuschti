@@ -8,15 +8,11 @@ using System.Threading.Tasks;
 
 namespace Chnuschti.Themes.Default;
 
-public static class CheckboxStyle
+public class CheckboxStyle : Style
 {
-    public static Style CreateStyle(DefaultTheme theme)
+    public CheckboxStyle(DefaultTheme theme)
     {
-        var s = new Style();
-
-        s.Renderer = new CheckBoxRenderer(theme);
-
-        return s;
+        Renderer = new CheckBoxRenderer(theme);
     }
 }
 

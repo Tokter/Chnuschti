@@ -1,0 +1,1 @@
+﻿[assembly: System.Reflection.Metadata.MetadataUpdateHandler(typeof(Chnuschti.ViewHotReloadHandler))]

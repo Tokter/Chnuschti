@@ -87,4 +87,24 @@ public class ResourceDictionary
 
         return (TData?)resource;
     }
+
+    internal void RecreateStyles(Theme theme, Type[] types)
+    {
+        foreach(var storage in _storage.Values)
+        {
+            foreach (var data in storage.Values)
+            {
+                foreach (var type in types.Where(t=> typeof(Style).IsAssignableFrom(t))) //Look for style types
+                {
+                    foreach(var key in data.Keys.ToList())
+                    {
+                        if (data[key].GetType() == type)
+                        {
+                            data[key] = Activator.CreateInstance(type, theme)!;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

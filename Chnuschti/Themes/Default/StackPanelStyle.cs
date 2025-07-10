@@ -8,13 +8,11 @@ using System.Threading.Tasks;
 
 namespace Chnuschti.Themes.Default;
 
-public static class StackPanelStyle
+public class StackPanelStyle : Style
 {
-    public static Style CreateStyle()
+    public StackPanelStyle(DefaultTheme theme)
     {
-        var s = new Style();
-        s.Renderer = new StackPanelRenderer();
-        return s;
+        Renderer = new StackPanelRenderer();
     }
 }
 
