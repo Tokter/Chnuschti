@@ -22,19 +22,36 @@ public class MainWindow : Screen
 
     private void InitializeComponent()
     {
-        VisualElement.ShowLayoutDebug = false;
+        VisualElement.ShowLayoutDebug = true;
 
         Content = new StackPanel()
-            .With(p => p.Padding = new Thickness(5));
+        {
+            Padding = new Thickness(5),
+            HorizontalContentAlignment = HorizontalAlignment.Stretch,
+        };
 
         new Label { Text = "Alice", Margin = new Thickness(4), Bold = true }
         .AddTo(Content)
         .SetBinding(Label.TextProperty, this.OneWayToDC<MainViewModel, string>(mvm => mvm.Title));
 
 
-        new Label { Text = "Bob", Margin = new Thickness(4) }.AddTo(Content);
+        new Label
+        {
+            Text = "Bob", 
+            Margin = new Thickness(4),
+            HorizontalContentAlignment = HorizontalAlignment.Center,
+            VerticalContentAlignment = VerticalAlignment.Center,
+        }.AddTo(Content);
+
         new Label { Text = "Carol", Margin = new Thickness(4) }.AddTo(Content);
-        _button = new Button { Content = "Click me", Margin = new Thickness(4), Padding = new Thickness(3) }
+        _button = new Button
+        {
+            Content = "Click me",
+            Margin = new Thickness(4), 
+            Padding = new Thickness(3),
+            HorizontalContentAlignment = HorizontalAlignment.Center,
+            VerticalContentAlignment = VerticalAlignment.Center,
+        }
         .AddTo(Content);
         _button.SetBinding(Button.CommandProperty, this.OneWayToDC((MainViewModel mvm) => mvm.ChangeTitle));
         _button.SetBinding(Button.IsEnabledProperty, this.OneWayToDC((MainViewModel mvm) => mvm.IsButtonEnabled));
@@ -58,6 +75,13 @@ public class MainWindow : Screen
         cb2.SetBinding(CheckBox.IsCheckedProperty, this.TwoWayToDC((MainViewModel mvm) => mvm.IsCheckboxEnabled));
         cb2.AddTo(Content);
 
-        new Icon { IconKind = IconKind.DanceBallroom, Width = 200, Height = 200 }.AddTo(Content);
+        new Icon
+        {
+            IconKind = IconKind.DanceBallroom, 
+            Width = 200, 
+            Height = 200,
+            HorizontalContentAlignment = HorizontalAlignment.Stretch,
+            VerticalContentAlignment = VerticalAlignment.Stretch,
+        }.AddTo(Content);
     }
 }

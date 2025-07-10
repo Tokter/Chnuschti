@@ -16,7 +16,8 @@ public class Control : DataElement
     public static readonly DependencyProperty ForegroundProperty = DependencyProperty.Register(nameof(Foreground), typeof(SKColor), typeof(Control), new PropertyMetadata(SKColors.Empty, OnInvalidateDrawResources));
     public static readonly DependencyProperty BackgroundProperty = DependencyProperty.Register(nameof(Background), typeof(SKColor), typeof(Control), new PropertyMetadata(SKColors.Empty));
     public static readonly DependencyProperty BoldProperty = DependencyProperty.Register(nameof(Bold), typeof(bool), typeof(Control), new PropertyMetadata(false, OnInvalidateDrawResources));
-
+    public static readonly DependencyProperty HorizontalContentAlignmentProperty = DependencyProperty.Register(nameof(HorizontalContentAlignment), typeof(HorizontalAlignment), typeof(Control), new PropertyMetadata(HorizontalAlignment.Left, OnInvalidateDrawResources));
+    public static readonly DependencyProperty VerticalContentAlignmentProperty = DependencyProperty.Register(nameof(VerticalContentAlignment), typeof(VerticalAlignment), typeof(Control), new PropertyMetadata(VerticalAlignment.Top, OnInvalidateDrawResources));
     public bool IsEnabled
     {
         get => (bool)GetValue(IsEnabledProperty)!;
@@ -28,6 +29,8 @@ public class Control : DataElement
     public SKColor Foreground { get => (SKColor)GetValue(ForegroundProperty)!; set => SetValue(ForegroundProperty, value); }
     public SKColor Background { get => (SKColor)GetValue(BackgroundProperty)!; set => SetValue(BackgroundProperty, value); }
     public bool Bold { get => (bool)GetValue(BoldProperty)!; set => SetValue(BoldProperty, value); }
+    public HorizontalAlignment HorizontalContentAlignment { get => (HorizontalAlignment)GetValue(HorizontalContentAlignmentProperty)!; set => SetValue(HorizontalContentAlignmentProperty, value); }
+    public VerticalAlignment VerticalContentAlignment { get => (VerticalAlignment)GetValue(VerticalContentAlignmentProperty)!; set => SetValue(VerticalContentAlignmentProperty, value); }
 
     //Convert string to Label
     public static implicit operator Control(string text)
@@ -90,6 +93,39 @@ public class Control : DataElement
     {
     }
 
+    // Provide helpers for alignment that can be used in ArrangeContent
+    protected SKRect ApplyAlignment(SKRect rect, float desiredWidth, float desiredHeight)
+    {
+        float x = rect.Left;
+        float y = rect.Top;
+        float width = HorizontalContentAlignment == HorizontalAlignment.Stretch ? rect.Width : desiredWidth;
+        float height = VerticalContentAlignment == VerticalAlignment.Stretch ? rect.Height : desiredHeight;
+
+        // Apply horizontal alignment
+        switch (HorizontalContentAlignment)
+        {
+            case HorizontalAlignment.Center:
+                x = rect.Left + (rect.Width - width) / 2;
+                break;
+            case HorizontalAlignment.Right:
+                x = rect.Right - width;
+                break;
+        }
+
+        // Apply vertical alignment
+        switch (VerticalContentAlignment)
+        {
+            case VerticalAlignment.Center:
+                y = rect.Top + (rect.Height - height) / 2;
+                break;
+            case VerticalAlignment.Bottom:
+                y = rect.Bottom - height;
+                break;
+        }
+
+        return new SKRect(x, y, x + width, y + height);
+    }
+
     // --------------------------------------------------------------------
     //  Property-change helpers
     // --------------------------------------------------------------------
@@ -117,6 +153,5 @@ public class Control : DataElement
                 PropagateInvalidate(child);                 // depth-first
             }
         }
-
     }
 }

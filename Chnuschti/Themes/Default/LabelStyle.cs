@@ -27,7 +27,7 @@ public class LabelRenderState : RenderState
 {
 }
 
-public class LabelRenderer : Renderer<Label,LabelRenderState>
+public class LabelRenderer : Renderer<Label, LabelRenderState>
 {
     private readonly DefaultTheme _theme;
 
@@ -36,13 +36,50 @@ public class LabelRenderer : Renderer<Label,LabelRenderState>
     public override void OnRender(SKCanvas canvas, Label element, LabelRenderState resource, double deltaTime)
     {
         var txt = element.Text ?? string.Empty;
+        if (string.IsNullOrEmpty(txt)) return;
 
-        // find baseline so that glyphs aren’t clipped on top
+        // Calculate text dimensions
+        float textWidth = resource.Font.MeasureText(txt);
         resource.Font.GetFontMetrics(out var fm);
-        float baseline = -fm.Ascent;   // ascent is negative
+        float textHeight = fm.Descent - fm.Ascent;  // ascent is negative
+        float baseline = -fm.Ascent;   // baseline offset (distance from top to baseline)
 
-        // Draw at local origin (0,0) – contentBounds already excluded padding
-        canvas.DrawText(txt, 0, baseline, resource.Font, resource.Paint);
+        // Calculate horizontal position based on alignment
+        float x = 0;
+        switch (element.HorizontalContentAlignment)
+        {
+            case HorizontalAlignment.Center:
+                x = (element.ContentBounds.Width - textWidth) / 2;
+                break;
+            case HorizontalAlignment.Right:
+                x = element.ContentBounds.Width - textWidth;
+                break;
+            case HorizontalAlignment.Left:
+            case HorizontalAlignment.Stretch: // For text, we treat stretch as left-aligned
+                x = 0;
+                break;
+        }
+
+        // Calculate vertical position based on alignment
+        float y = baseline; // Default is top-aligned (baseline offset from top)
+        switch (element.VerticalContentAlignment)
+        {
+            case VerticalAlignment.Center:
+                // Center the text vertically, accounting for baseline
+                y = (element.ContentBounds.Height - textHeight) / 2 - fm.Ascent;
+                break;
+            case VerticalAlignment.Bottom:
+                // Align bottom of text with bottom of content area
+                y = element.ContentBounds.Height - fm.Descent;
+                break;
+            case VerticalAlignment.Top:
+            case VerticalAlignment.Stretch: // For text, we treat stretch as top-aligned
+                y = baseline;
+                break;
+        }
+
+        // Draw text at calculated position
+        canvas.DrawText(txt, x, y, resource.Font, resource.Paint);
     }
 
     public override SKSize OnMeasure(Label element, LabelRenderState resource, SKSize availableContent)
@@ -60,7 +97,6 @@ public class LabelRenderer : Renderer<Label,LabelRenderState>
     {
         // ---------- upfront colour decisions ----------
         var textColor = e.Foreground != SKColor.Empty ? e.Foreground : _theme.TextColor;
-
 
         r.Font.Size = e.FontSize;
 

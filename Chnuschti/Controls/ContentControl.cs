@@ -52,6 +52,14 @@ public class ContentControl : Control
         if (_content == null) return; // nothing to layout
 
         var childRect = ShrinkBy(ToLocal(contentRect), _content.Margin);
-        _content.Arrange(childRect);
+
+        // Use the desiredSize for the content (minus margins)
+        var desiredWidth = _content.DesiredSize.Width - _content.Margin.Horizontal;
+        var desiredHeight = _content.DesiredSize.Height - _content.Margin.Vertical;
+
+        // Apply alignment
+        var alignedRect = ApplyAlignment(childRect, desiredWidth, desiredHeight);
+
+        _content.Arrange(alignedRect);
     }
 }
