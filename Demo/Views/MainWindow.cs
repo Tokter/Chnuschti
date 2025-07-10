@@ -50,7 +50,7 @@ public class MainWindow : Screen
 
         var cb2 = new CheckBox
         {
-            Content = new Icon { IconKind = IconKind.AccountAlertOutline },
+            Content = new Icon { IconKind = IconKind.Account },
             Margin = new Thickness(4),
             Foreground = SKColors.Green.AdjBrightness(61),
             Background = SKColors.Green,
@@ -58,6 +58,6 @@ public class MainWindow : Screen
         cb2.SetBinding(CheckBox.IsCheckedProperty, this.TwoWayToDC((MainViewModel mvm) => mvm.IsCheckboxEnabled));
         cb2.AddTo(Content);
 
-        new Icon { }.AddTo(Content);
+        new Icon { IconKind = IconKind.DanceBallroom, Width = 200, Height = 200 }.AddTo(Content);
     }
 }

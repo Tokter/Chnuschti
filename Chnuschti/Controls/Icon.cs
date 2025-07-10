@@ -9,7 +9,7 @@ namespace Chnuschti.Controls;
 
 public class Icon : Control
 {
-    public static readonly DependencyProperty IconKindProperty = DependencyProperty.Register(nameof(IconKind), typeof(IconKind), typeof(Icon), new PropertyMetadata(IconKind.AccountAlertOutline, OnInvalidateDrawResources));
+    public static readonly DependencyProperty IconKindProperty = DependencyProperty.Register(nameof(IconKind), typeof(IconKind), typeof(Icon), new PropertyMetadata(IconKind.Abacus, OnInvalidateDrawResources));
 
     public IconKind IconKind { get => (IconKind)GetValue(IconKindProperty)!; set => SetValue(IconKindProperty, value);
     }

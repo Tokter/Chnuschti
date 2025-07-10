@@ -56,6 +56,7 @@ public class IconRenderer : Renderer<Icon, IconRenderState>
         var iconColor = e.Foreground != SKColor.Empty ? e.Foreground : _theme.TextColor;
         r.Paint.Color = iconColor;
         r.Paint.IsAntialias = true; // enable antialiasing for better text rendering
+        var path = Icons.IconPaths[e.IconKind];
         r.Path = SKPath.ParseSvgPathData(Icons.IconPaths[e.IconKind]);
         r.Bounds = r.Path.Bounds;
 

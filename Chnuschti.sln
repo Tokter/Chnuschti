@@ -13,6 +13,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Demo", "Demo\Demo.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsFormsDemo", "Platforms\WindowsFormsDemo\WindowsFormsDemo.csproj", "{C4E8AE45-7BFE-49D8-852D-6B1B4901F51A}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{604FDDF0-7C02-4389-8640-1430921CE0D5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IconListBuilder", "Tools\IconListBuilder\IconListBuilder.csproj", "{36B07D20-8B28-403E-BCCE-D3BD551C3C9A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,6 +39,10 @@ Global
 		{C4E8AE45-7BFE-49D8-852D-6B1B4901F51A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C4E8AE45-7BFE-49D8-852D-6B1B4901F51A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C4E8AE45-7BFE-49D8-852D-6B1B4901F51A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{36B07D20-8B28-403E-BCCE-D3BD551C3C9A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{36B07D20-8B28-403E-BCCE-D3BD551C3C9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{36B07D20-8B28-403E-BCCE-D3BD551C3C9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{36B07D20-8B28-403E-BCCE-D3BD551C3C9A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -42,6 +50,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{C7B76CE3-98C2-49A2-9C68-980D9EDECFDB} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{C4E8AE45-7BFE-49D8-852D-6B1B4901F51A} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{36B07D20-8B28-403E-BCCE-D3BD551C3C9A} = {604FDDF0-7C02-4389-8640-1430921CE0D5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {609502E4-9F4E-4B7D-85E7-117CC7A9D964}
