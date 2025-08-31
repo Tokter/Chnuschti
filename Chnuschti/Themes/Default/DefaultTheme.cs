@@ -44,6 +44,7 @@ public class DefaultTheme : Theme
                 .Add<Button, Style>(new ButtonStyle(this))
                 .Add<CheckBox, Style>(new CheckboxStyle(this))
                 .Add<Icon, Style>(new IconStyle(this))
+                .Add<TabControl, Style>(new TabControlStyle(this))
                 ;
     }
 }

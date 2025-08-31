@@ -150,6 +150,18 @@ internal sealed class CheckBoxRenderer : Renderer<CheckBox, CheckBoxRenderState>
                 isChecked ? CheckBox.HANDLE_ON : CheckBox.HANDLE_OFF);
         }
 
+        void Initialize()
+        {
+            if (r.Initialized) return;
+
+            r.Animations["HandlePosition"].Initialize(CheckBox.HEIGHT / 2f);
+            r.Animations["HandleColor"].Initialize(_theme.OffColor);
+            r.Animations["BackgroundColor"].Initialize(_theme.OffColor.WithAlpha(80));
+            r.Animations["HandleSize"].Initialize(CheckBox.HANDLE_OFF);
+
+            r.Initialized = true;
+        }
+
         void StartPressAnimation(bool pressed) =>
             r.Animations["HandleSize"].Start(
                 r.HandleSize,
@@ -161,6 +173,8 @@ internal sealed class CheckBoxRenderer : Renderer<CheckBox, CheckBoxRenderState>
         InitPaint(r.BackgroundPaint, SKPaintStyle.Fill);
         InitPaint(r.HandlePaint, SKPaintStyle.Fill);
         InitPaint(r.HoverPaint, SKPaintStyle.Fill, 0, _theme.HoverColor);
+
+        Initialize();
 
         // ---------- state-driven updates ----------
         if (e.IsEnabled != r.PreviousEnabledState)

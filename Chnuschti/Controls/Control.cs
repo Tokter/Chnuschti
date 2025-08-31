@@ -38,6 +38,11 @@ public class Control : DataElement
         return new Label { Text = text, Margin = new Thickness(4) };
     }
 
+    public static implicit operator Control(IconKind kind)
+    {
+        return new Icon { IconKind = kind, Margin = new Thickness(4) };
+    }
+
     private bool _isPressed = false;
     public bool IsPressed
     {

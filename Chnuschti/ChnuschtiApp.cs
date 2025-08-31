@@ -40,7 +40,6 @@ public class ChnuschtiApp
         ScreenHeight = height;
 
         if (Screen == null) return; // Ensure Screen is initialized
-        Screen.SetSize(width / Scale, height / Scale);
         Screen.ScaleX = Scale;
         Screen.ScaleY = Scale;
     }
@@ -52,6 +51,10 @@ public class ChnuschtiApp
         _timer.Tick();
 
         if (Screen == null) return; // Render the screen content
+
+        //Layout the screen
+        Screen.Measure(new SKSize(ScreenWidth / Scale, ScreenHeight / Scale));
+        Screen.Arrange(new SKRect(0, 0, ScreenWidth / Scale, ScreenHeight / Scale));
 
         Screen.Render(canvas, _timer.DeltaTime);
 
@@ -67,7 +70,7 @@ public class ChnuschtiApp
         canvas.DrawText($"Mouse: {MousePosX / Scale:F2}, {MousePosY / Scale:F2}", 10 * Scale, ScreenHeight - 10 * Scale, font, paint);
 
         //Draw FPS at the top right corner
-        canvas.DrawText($"FPS: {_timer.Fps:F2}", ScreenWidth - 60 * Scale, 10 * Scale, font, paint);
+        canvas.DrawText($"FPS: {_timer.Fps:F2}", ScreenWidth - 80 * Scale, 15 * Scale, font, paint);
 
     }
 

@@ -7,7 +7,7 @@ using SkiaSharp;
 
 namespace Chnuschti.Controls;
 
-public class ContentControl : Control
+public class ContentControl : Control, IHasContent
 {
     public ContentControl()
     {

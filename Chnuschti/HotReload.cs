@@ -161,7 +161,6 @@ public static class HotReloadManager
                 _app.Screen = newScreen;
                 
                 // Set the size to match the current app dimensions
-                newScreen.SetSize(_app.ScreenWidth / _app.Scale, _app.ScreenHeight / _app.Scale);
                 newScreen.ScaleX = _app.Scale;
                 newScreen.ScaleY = _app.Scale;
                 

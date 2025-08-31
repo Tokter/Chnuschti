@@ -9,6 +9,7 @@ public sealed class StackPanel : Control
 {
     public StackPanel()
     {
+        IsHitTestVisible = false; // StackPanels are not interactive by default
     }
 
     // -------- Orientation dependency-property ----------------------------
@@ -40,133 +41,48 @@ public sealed class StackPanel : Control
             if (!child.IsVisible)
                 continue;
 
-            var childDesiredSize = child.DesiredSize;
+            var desired = child.DesiredSize; // includes child's Margin
+            var m = child.Margin;
 
-            // Calculate child rectangle based on orientation
-            SKRect childRect;
             if (Orientation == Orientation.Vertical)
             {
-                // For vertical orientation, stack items from top to bottom
-                childRect = new SKRect(
-                    content.Left,
-                    y,
-                    content.Right,
-                    y + childDesiredSize.Height - child.Margin.Vertical
-                );
+                // Leading edges include margin; trailing edges exclude margin
+                float top = y + m.Top;
+                float left = content.Left + m.Left;
+                float right = content.Right - m.Right;
+                float height = Math.Max(0, desired.Height - m.Vertical);
 
-                // Update y position for next child
-                y += childDesiredSize.Height;
+                var childRect = new SKRect(left, top, right, top + height);
+
+                // Arrange using desired size without margins for alignment
+                var alignedRect = ApplyAlignment(
+                    childRect,
+                    Math.Max(0, desired.Width - m.Horizontal),
+                    height);
+
+                child.Arrange(alignedRect);
+
+                // Advance by full desired size (content + margins)
+                y += desired.Height;
             }
             else
             {
-                // For horizontal orientation, stack items from left to right
-                childRect = new SKRect(
-                    x,
-                    content.Top,
-                    x + childDesiredSize.Width - child.Margin.Horizontal,
-                    content.Bottom
-                );
+                float left = x + m.Left;
+                float top = content.Top + m.Top;
+                float bottom = content.Bottom - m.Bottom;
+                float width = Math.Max(0, desired.Width - m.Horizontal);
 
-                // Update x position for next child
-                x += childDesiredSize.Width;
+                var childRect = new SKRect(left, top, left + width, bottom);
+
+                var alignedRect = ApplyAlignment(
+                    childRect,
+                    width,
+                    Math.Max(0, desired.Height - m.Vertical));
+
+                child.Arrange(alignedRect);
+
+                x += desired.Width;
             }
-
-            // Apply alignment and arrange the child
-            var alignedRect = ApplyAlignment(childRect,
-                childDesiredSize.Width - child.Margin.Horizontal,
-                childDesiredSize.Height - child.Margin.Vertical);
-
-            child.Arrange(alignedRect);
         }
     }
-
-
-    /*
-    // -------- ARRANGE  ----------------------------------------------------
-    // positions each child's layout slot one after another
-    protected override void ArrangeContent(SKRect content)
-    {
-        float curX = content.Left;
-        float curY = content.Top;
-
-        foreach (var child in Children)
-        {
-            if (!child.IsVisible) continue;
-            
-            var need = child.DesiredSize;             // includes Margin
-            float childDesiredWidth = need.Width - child.Margin.Horizontal;
-            float childDesiredHeight = need.Height - child.Margin.Vertical;
-            
-            if (Orientation == Orientation.Vertical)
-            {
-                // Calculate full available width for this item
-                float availableWidth = Math.Max(0, content.Width);
-                
-                // Determine horizontal position based on alignment
-                float x = curX;
-                float width = childDesiredWidth;
-                
-                // Apply horizontal alignment
-                switch (HorizontalContentAlignment)
-                {
-                    case HorizontalAlignment.Center:
-                        if (width < availableWidth)
-                            x = curX + (availableWidth - width) / 2;
-                        break;
-                    case HorizontalAlignment.Right:
-                        if (width < availableWidth)
-                            x = curX + availableWidth - width;
-                        break;
-                    case HorizontalAlignment.Stretch:
-                        width = availableWidth;
-                        break;
-                }
-                
-                // Create rectangle with the appropriate alignment applied
-                var r = new SKRect(
-                    x,
-                    curY + child.Margin.Top,
-                    x + width,
-                    curY + childDesiredHeight + child.Margin.Top);
-                
-                child.Arrange(r);
-                curY += need.Height;                  // next row
-            }
-            else // Horizontal
-            {
-                // Calculate full available height for this item
-                float availableHeight = Math.Max(0, content.Height);
-                
-                // Determine vertical position based on alignment
-                float y = curY;
-                float height = childDesiredHeight;
-                
-                // Apply vertical alignment
-                switch (VerticalContentAlignment)
-                {
-                    case VerticalAlignment.Center:
-                        if (height < availableHeight)
-                            y = curY + (availableHeight - height) / 2;
-                        break;
-                    case VerticalAlignment.Bottom:
-                        if (height < availableHeight)
-                            y = curY + availableHeight - height;
-                        break;
-                    case VerticalAlignment.Stretch:
-                        height = availableHeight;
-                        break;
-                }
-                
-                // Create rectangle with the appropriate alignment applied
-                var r = new SKRect(
-                    curX + child.Margin.Left,
-                    y,
-                    curX + childDesiredWidth + child.Margin.Left,
-                    y + height);
-                
-                child.Arrange(r);
-                curX += need.Width;                   // next column
-            }
-        }
-    }*/
 }

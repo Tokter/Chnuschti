@@ -20,6 +20,88 @@ public class MainWindow : Screen
     {
         VisualElement.ShowLayoutDebug = false;
 
+        TabItem? stats = null;
+
+        Content = new TabControl()
+            .With(tc =>
+            {
+                tc.Margin = new Thickness(5);
+                tc.StripPlacement = TabStripPlacement.Top;
+                tc.HeaderTemplate = new DataTemplate<TabItem>(tab =>
+                {
+                    // Example: header with title + ✖ close-button
+                    var row = new StackPanel { Orientation = Orientation.Horizontal };
+                    row.Children(
+                        new Label
+                        {
+                            Text = tab.Header?.ToString() ?? "Untitled",
+                            Margin = new Thickness(4),
+                        },
+
+                        new Button
+                        {
+                            Content = "✖",
+                            Padding = new Thickness(0, 0, 2, 0),
+                            Command = new DelegateCommand(_ => tab.ParentTabControl?.RemoveTab(tab))
+                        });
+                    return row;
+                });
+            })
+            .Add(tc =>
+                new TabItem()
+                .With(ti => ti.Header = "Home")
+                .Content(new Label { Text = "Home", Margin = new Thickness(18) })
+            )
+            .Add(tc =>
+                new TabItem()
+                .With(ti => ti.Header = "Stats")
+                .Content("Stats")
+                .Out(out stats)
+            )
+            .Add(tc =>
+                new TabItem()
+                .With(ti => ti.Header = "Page 3")
+                .Content(
+                    new Button()
+                    .With(b => b.Content = "Remove Stats Page")
+                    .With(b => b.Command = new DelegateCommand(_ =>
+                    {
+                        if (stats != null) tc.RemoveTab(stats);
+                    }))
+                )
+            )
+            .Add(tc =>
+                new TabItem()
+                .With(ti => ti.Header = "Buttons")
+                .Content(
+                    new StackPanel()
+                        .With(sp=>
+                        {
+                            sp.Orientation = Orientation.Vertical;
+                        })
+                        .Children(
+                            new CheckBox
+                            {
+                                Content = "Button Enabled",
+                                Margin = new Thickness(18)
+                            },
+                            new CheckBox
+                            {
+                                Content = IconKind.Account,
+                                Margin = new Thickness(18),
+                                Foreground = SKColors.Green.AdjBrightness(61),
+                                Background = SKColors.Green,
+                            },
+                            new Button()
+                            {
+                                Content = "Click me",
+                                Margin = new Thickness(18),
+                            }
+                        )
+                    )
+            );
+
+        /*
         Content = new ItemsControl
         {
             ItemsPanel = new StackPanel
@@ -62,7 +144,6 @@ public class MainWindow : Screen
         Content.SetBinding(ItemsControl.ItemsSourceProperty, this.OneWayToDC<MainViewModel, ObservableCollection<Person>>(mvm => mvm.People));
         
 
-        /*
         Content = new StackPanel()
         {
             Padding = new Thickness(5),

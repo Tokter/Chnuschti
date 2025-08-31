@@ -17,6 +17,7 @@ public interface IAnimation
     string Name { get; }
     bool IsRunning { get; }
     void Start(object from, object to);
+    void Initialize(object to);
     void Stop();
     void Update(double deltaSeconds);
 }
@@ -168,6 +169,18 @@ public abstract class AnimationBase<T> : IAnimation
     void IAnimation.Start(object from, object to)
     {
         Start((T)from, (T)to);
+    }
+
+    public AnimationBase<T> Initialize(T to)
+    {
+        IsRunning = false;
+        _setter(to);
+        return this;
+    }
+
+    void IAnimation.Initialize(object to)
+    {
+        Initialize((T)to);
     }
 
     /// <summary>

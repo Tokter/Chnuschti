@@ -18,12 +18,6 @@ public class Screen : ContentControl
         HotReloadManager.RegisterScreen(this);
     }
 
-    public void SetSize(float width, float height)
-    {
-        Measure(new SKSize(width, height));
-        Arrange(new SKRect(0, 0, width, height));
-    }
-
     protected virtual void InitializeComponent()
     {
     }

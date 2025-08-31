@@ -162,7 +162,7 @@ public class ItemsControl : Control
             {
                 foreach (var control in _itemsControls.Values)
                 {
-                    _itemsPanel.Add(control);
+                    _itemsPanel.AddChild(control);
                 }
             }
         }
@@ -267,7 +267,7 @@ public class ItemsControl : Control
 
         // Add to collection and panel
         _itemsControls[item] = control;
-        _itemsPanel.Add(control);
+        _itemsPanel.AddChild(control);
     }
 
     private void RemoveItem(object item)

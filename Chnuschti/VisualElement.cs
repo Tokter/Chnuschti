@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Chnuschti;
 
-public class VisualElement : DependencyObject, IDisposable
+public class VisualElement : DependencyObject, IDisposable, IElement, IHasChildren<VisualElement>
 {
     public long Id { get; } = Interlocked.Increment(ref _idCounter);
     private static long _idCounter;
@@ -157,6 +157,9 @@ public class VisualElement : DependencyObject, IDisposable
         {
             _isMeasureValid = false;
             InvalidateArrange();          // arrange depends on measure
+
+            // ----- propagate to the parent so layout runs again -----
+            ParentInternal?.InvalidateMeasure();
         }
     }
 
@@ -204,7 +207,7 @@ public class VisualElement : DependencyObject, IDisposable
         var availableContentSize = new SKSize(Math.Max(0, availableSize.Width - Margin.Horizontal), Math.Max(0, availableSize.Height - Margin.Vertical));
 
         //let child override to compute its own size (defaults to 0,0)
-        var desiredSize = (_style?.Renderer?.Measure(this, availableContentSize) ?? SKSize.Empty) + Padding;
+        var desiredSize = (Style?.Renderer?.Measure(this, availableContentSize) ?? SKSize.Empty) + Padding;
 
         //use explicit sizing if Widht/Height are set
         var w = float.IsNaN(Width) ? desiredSize.Width : Width;
@@ -293,7 +296,7 @@ public class VisualElement : DependencyObject, IDisposable
     private readonly List<VisualElement> _children = new();
     public IReadOnlyList<VisualElement> Children => _children;
 
-    public VisualElement Add(VisualElement child)
+    public VisualElement AddChild(VisualElement child)
     {
         child.ParentInternal = this;
         _children.Add(child);
@@ -301,12 +304,23 @@ public class VisualElement : DependencyObject, IDisposable
         return this;
     }
 
-    public void Add(params VisualElement[] children)
+    public void AddChildren(params VisualElement[] children)
     {
         foreach (var child in children)
         {
-            Add(child);
+            AddChild(child);
         }
+    }
+
+    public void ClearChildren()
+    {
+        foreach (var child in _children)
+        {
+            child.ParentInternal = null; // clear parent reference
+            child.InvalidateMeasure(); // child removed, measure may change
+        }
+        _children.Clear();
+        this.InvalidateMeasure(); // children cleared, measure may change
     }
 
     protected void ReplaceVisualChild(VisualElement? oldChild, VisualElement? newChild)
@@ -442,14 +456,15 @@ public class VisualElement : DependencyObject, IDisposable
 
     public VisualElement? HitTest(SKPoint screenPt)
     {
-        if (!IsHitTestVisible) return null;
-
         // 1) children first – last rendered = top-most
         for (int i = _children.Count - 1; i >= 0; i--)
         {
             var hit = _children[i].HitTest(screenPt);
             if (hit != null) return hit;
         }
+
+        if (!IsHitTestVisible) return null;
+
 
         // 2) self: map to local and hit the content rect
         var local = PointFromScreen(screenPt);
@@ -483,12 +498,12 @@ public class VisualElement : DependencyObject, IDisposable
     {
         if (!_drawResourcesDirty) return;
         _drawResourcesDirty = false;
-        _style?.Renderer?.UpdateResources(this);
+        Style?.Renderer?.UpdateResources(this);
     }
 
     private void DisposeDrawResources()
     {
-        _style?.Renderer?.DeleteResources(this);
+        Style?.Renderer?.DeleteResources(this);
     }
     
     private void ChangeStyle(Style? oldStyle, Style? newStyle)

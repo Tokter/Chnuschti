@@ -11,6 +11,7 @@ public readonly struct Thickness
 {
     public readonly float Left, Top, Right, Bottom;
     public Thickness(float uniform) : this(uniform, uniform, uniform, uniform) { }
+    public Thickness(float horizontal, float vertical) : this(horizontal, vertical, horizontal, vertical) { }
     public Thickness(float l, float t, float r, float b)
         => (Left, Top, Right, Bottom) = (l, t, r, b);
     public float Horizontal => Left + Right;

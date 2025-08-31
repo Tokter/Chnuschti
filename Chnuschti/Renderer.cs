@@ -126,6 +126,7 @@ public class Renderer<VisEl,Res> : IRenderer
 public abstract class RenderState : IDisposable
 {
     private bool _disposedValue;
+    public bool Initialized { get; set; } = false;
     public AnimationGroup Animations { get; } = new();
 
     public SKPaint Paint { get; set; } = new SKPaint();
