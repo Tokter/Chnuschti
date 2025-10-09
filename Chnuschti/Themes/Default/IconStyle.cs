@@ -10,9 +10,9 @@ namespace Chnuschti.Themes.Default;
 
 public class IconStyle : Style
 {
-    public IconStyle(DefaultTheme theme)
+    public IconStyle()
     {
-        Renderer = new IconRenderer(theme);
+        Renderer = new IconRenderer();
     }
 }
 
@@ -33,10 +33,6 @@ public class IconRenderState : RenderState
 
 public class IconRenderer : Renderer<Icon, IconRenderState>
 {
-    private readonly DefaultTheme _theme;
-
-    public IconRenderer(DefaultTheme theme) => _theme = theme;
-
     public override void OnRender(SKCanvas canvas, Icon element, IconRenderState resource, double deltaTime)
     {
         canvas.Save();
@@ -115,7 +111,7 @@ public class IconRenderer : Renderer<Icon, IconRenderState>
     public override void OnUpdateRenderState(Icon e, IconRenderState r)
     {
         // ---------- upfront colour decisions ----------
-        var iconColor = e.Foreground != SKColor.Empty ? e.Foreground : _theme.TextColor;
+        var iconColor = e.Foreground != SKColor.Empty ? e.Foreground : ThemeManager.Current.TextColor;
         r.Paint.Color = iconColor;
         r.Paint.IsAntialias = true; // enable antialiasing for better text rendering
         

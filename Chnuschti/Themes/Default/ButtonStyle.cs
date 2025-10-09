@@ -10,104 +10,124 @@ namespace Chnuschti.Themes.Default;
 
 public class ButtonStyle : Style
 {
-    public ButtonStyle(DefaultTheme theme) : base()
+    public ButtonStyle() : base()
     {
-        Add(Button.BackgroundProperty, new SKColor(128, 128, 128, 255));
-        Add(Button.ForegroundProperty, SKColors.White);
-        Renderer = new ButtonRenderer(theme);
+        Add(Button.HorizontalContentAlignmentProperty, HorizontalAlignment.Center);
+        Add(Button.VerticalContentAlignmentProperty, VerticalAlignment.Center);
+        Add(Button.PaddingProperty, new Thickness(ThemeManager.Current.Radius, 0));
+        Renderer = new ButtonRenderer();
     }
 }
 
-public class ButtonResource : RenderState
+public class ButtonRenderState : RenderState
 {
-    public SKPaint BorderPaint { get; set; } = new SKPaint();
+    public bool PreviousPressedState = false;
+    public bool PreviousEnabledState = true;
+    public SKPaint BackgroundPaint { get; set; } = new SKPaint();
+    public float Radius { get; set; } = 5;
+    public SKImageFilter? Shadow { get; set; } = null;
+
+    public ButtonRenderState()
+    {
+        Animations.Add(new AnimationColor("BackgroundColor", TimeSpan.FromSeconds(0.5), (c) => BackgroundPaint.Color = c));
+        Animations.Add(new AnimationNumeric<float>("Radius", TimeSpan.FromSeconds(0.2), (r) => Radius = r));
+        Animations.Add(new AnimationNumeric<float>("Depth", TimeSpan.FromSeconds(0.2), (d) => Shadow = SKImageFilter.CreateDropShadow(0, d, 2, 2, SKColors.Black.WithAlpha(100))));
+    }
 
     protected override void Dispose(bool disposing)
     {
         if (disposing)
         {
-            BorderPaint.Dispose();
+            BackgroundPaint.Dispose();
         }
         base.Dispose(disposing);
     }
 }
 
-public class ButtonRenderer : Renderer<Button, ButtonResource>
+public class ButtonRenderer : Renderer<Button, ButtonRenderState>
 {
-    private DefaultTheme _theme;
-
-    public ButtonRenderer(DefaultTheme theme)
-    {
-        _theme = theme;
-    }
-
-    public override SKSize OnMeasure(Button element, ButtonResource resource, SKSize availableContent)
+    public override SKSize OnMeasure(Button element, ButtonRenderState resource, SKSize availableContent)
     {
         if (element.Content == null) return SKSize.Empty;
-
+        
         // Let child measure first
         element.Content.Measure(availableContent);
-        return element.Content.DesiredSize;
+        var childNeed = element.Content.DesiredSize;
+
+        var w = Math.Max(ThemeManager.Current.Width, (element.Content != null ? childNeed.Width : 0));
+        var h = Math.Max(ThemeManager.Current.Height, childNeed.Height);
+
+        return new SKSize(w, h);
     }
 
-    public override void OnRender(SKCanvas canvas, Button element, ButtonResource resource, double deltaTime)
+    public override void OnRender(SKCanvas canvas, Button element, ButtonRenderState r, double deltaTime)
     {
-        canvas.DrawRoundRect(0, 0, element.ContentBounds.Width, element.ContentBounds.Height, 5, 5, resource.Paint);
-        canvas.DrawRoundRect(0, 0, element.ContentBounds.Width, element.ContentBounds.Height, 5, 5, resource.BorderPaint);
+        if (r.Shadow != null) r.BackgroundPaint.ImageFilter = r.Shadow;
+        canvas.DrawRoundRect(0, 0, element.ContentBounds.Width, element.ContentBounds.Height, r.Radius, r.Radius, r.BackgroundPaint);
 
         // let ContentControl draw child
         element.Content?.Render(canvas, deltaTime);   // child draws in its own local coords
     }
 
-    public override void OnUpdateRenderState(Button element, ButtonResource resource)
+    public override void OnUpdateRenderState(Button e, ButtonRenderState r)
     {
-        resource.BorderPaint.Color = _theme.BorderColor;
-        resource.BorderPaint.Style = SKPaintStyle.Stroke;
-        resource.BorderPaint.IsAntialias = true;
-        resource.BorderPaint.StrokeWidth = 1.1f;
+        // ---------- upfront colour decisions ----------
+        var backgroundColor = e.Background != SKColor.Empty ? e.Background : ThemeManager.Current.AccentColor;
 
-        resource.Paint.Style = SKPaintStyle.Fill;
-
-        if (!element.IsEnabled)
+        // ---------- quick helpers ----------
+        void SetEnabledColours(bool enabled)
         {
-            resource.Paint.Shader = null;
-            resource.Paint.Color = element.Background.WithAlpha(80);
-        }
-        else if (element.IsPressed)
-        {
-            resource.Paint.Shader = SKShader.CreateLinearGradient(
-                             new SKPoint(0, 0),
-                             new SKPoint(0, element.ContentBounds.Height),
-                             new SKColor[] { Brighten(element.Background, 0), Darken(element.Background, 40) },
-                             new float[] { 0, 1 },
-                             SKShaderTileMode.Repeat);
-        }
-        else if (element.IsMouseOver)
-        {
-            resource.Paint.Shader = SKShader.CreateLinearGradient(
-                             new SKPoint(0, 0),
-                             new SKPoint(0, element.ContentBounds.Height),
-                             new SKColor[] { Brighten(element.Background,60), Brighten(element.Background, 20), Darken(element.Background, 20), Darken(element.Background, 60) },
-                             new float[] { 0, 0.1f, 0.9f, 1 },
-                             SKShaderTileMode.Repeat);
-        }
-        else
-        {
-            resource.Paint.Shader = SKShader.CreateLinearGradient(
-                             new SKPoint(0, 0),
-                             new SKPoint(0, element.ContentBounds.Height),
-                             new SKColor[] { Brighten(element.Background, 20), Darken(element.Background, 20) },
-                             new float[] { 0, 1 },
-                             SKShaderTileMode.Repeat);
+            if (enabled)
+            {
+                r.BackgroundPaint.Color = backgroundColor;
+            }
+            else
+            {
+                var disabled = ThemeManager.Current.DisabledColor;
+                r.BackgroundPaint.Color = disabled.WithAlpha(80);
+            }
         }
 
-        // background (darker when pressed)
-        //var bg = element.Background.WithAlpha(100);
+        void StartPressAnimation(bool pressed)
+        {
+            r.Animations["Radius"].Start(
+                pressed ? ThemeManager.Current.Radius : ThemeManager.Current.PressedRadius,
+                pressed ? ThemeManager.Current.PressedRadius : ThemeManager.Current.Radius);
 
-        //if (!element.IsEnabled) bg = bg.WithAlpha(100);
-        //else if (element.IsPressed) bg = bg.WithAlpha(200);
-        //else if (element.IsMouseOver) bg = bg.WithAlpha(150);
+            r.Animations["Depth"].Start(
+                pressed ? 3.0f : 0.0f,
+                pressed ? 0.0f : 3.0f);
 
-        //resource.Paint.Color = bg;
+            r.Animations["BackgroundColor"].Start(
+                pressed ? backgroundColor : Darken(backgroundColor, 20),
+                pressed ? Darken(backgroundColor, 20) : backgroundColor);
+        }
+
+        void Initialize()
+        {
+            if (r.Initialized) return;
+            InitPaint(r.BackgroundPaint, SKPaintStyle.Fill);
+
+            r.Animations["Radius"].Initialize(ThemeManager.Current.Radius);
+            r.Animations["BackgroundColor"].Initialize(backgroundColor);
+            r.Animations["Depth"].Initialize(3.0f);
+
+            r.Initialized = true;
+        }
+
+        Initialize();
+
+        // ---------- state-driven updates ----------
+        if (e.IsEnabled != r.PreviousEnabledState)
+        {
+            r.PreviousEnabledState = e.IsEnabled;
+            SetEnabledColours(e.IsEnabled);
+        }
+
+        if (e.IsPressed != r.PreviousPressedState)
+        {
+            r.PreviousPressedState = e.IsPressed;
+            StartPressAnimation(e.IsPressed);
+        }
     }
 }

@@ -19,4 +19,6 @@ public readonly struct Thickness
 
     //Conversion to SKSize
     public static implicit operator SKSize(Thickness t) => new SKSize(t.Horizontal, t.Vertical);
+
+    public static Thickness operator +(Thickness a, Thickness b) => new Thickness(a.Left + b.Left, a.Top + b.Top, a.Right + b.Right, a.Bottom + b.Bottom);
 }

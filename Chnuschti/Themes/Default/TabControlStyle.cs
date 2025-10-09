@@ -5,9 +5,9 @@ namespace Chnuschti.Themes.Default;
 
 public class TabControlStyle : Style
 {
-    public TabControlStyle(DefaultTheme theme)
+    public TabControlStyle()
     {
-        Renderer = new TabControlRenderer(theme);
+        Renderer = new TabControlRenderer();
     }
 }
 
@@ -17,10 +17,6 @@ public class TabControlResource : RenderState { }
 /// renders the header background / indicator in Material Design 3 style.</summary>
 public class TabControlRenderer : Renderer<TabControl, TabControlResource>
 {
-    private readonly DefaultTheme _theme;
-
-    public TabControlRenderer(DefaultTheme theme) => _theme = theme;
-
     // Material Design 3 reference colors (light scheme)
     //private static readonly SKColor HeaderBackground = SKColor.Parse("#F1F3F4"); // Surface Container highest
     //private static readonly SKColor Divider = SKColor.Parse("#E0E0E0");

@@ -40,7 +40,7 @@ public class MainWindow : Screen
 
                         new Button
                         {
-                            Content = "✖",
+                            Content = "X",
                             Padding = new Thickness(0, 0, 2, 0),
                             Command = new DelegateCommand(_ => tab.ParentTabControl?.RemoveTab(tab))
                         });
@@ -95,7 +95,7 @@ public class MainWindow : Screen
                             new Button()
                             {
                                 Content = "Click me",
-                                Margin = new Thickness(18),
+                                Margin = new Thickness(18),                                
                             }
                         )
                     )

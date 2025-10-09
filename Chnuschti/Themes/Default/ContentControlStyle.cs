@@ -10,7 +10,7 @@ namespace Chnuschti.Themes.Default;
 
 public class ContentControlStyle : Style
 {
-    public ContentControlStyle(DefaultTheme theme)
+    public ContentControlStyle()
     {
         Renderer = new ContentControlRenderer();
     }

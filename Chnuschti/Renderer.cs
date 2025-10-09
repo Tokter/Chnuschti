@@ -103,7 +103,6 @@ public class Renderer<VisEl,Res> : IRenderer
         }
     }
 
-
     protected SKColor Brighten(SKColor color, byte amount)
     {
         return new SKColor(
@@ -120,6 +119,14 @@ public class Renderer<VisEl,Res> : IRenderer
             (byte)Math.Max(color.Green - amount, 0),
             (byte)Math.Max(color.Blue - amount, 0),
             color.Alpha);
+    }
+
+    protected void InitPaint(SKPaint p, SKPaintStyle style, float stroke = 0, SKColor? color = null)
+    {
+        p.Style = style;
+        p.IsAntialias = true;
+        if (stroke > 0) p.StrokeWidth = stroke;
+        if (color.HasValue) p.Color = color.Value;
     }
 }
 

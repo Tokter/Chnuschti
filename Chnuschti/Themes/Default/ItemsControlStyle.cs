@@ -5,7 +5,7 @@ namespace Chnuschti.Themes.Default;
 
 public class ItemsControlStyle : Style
 {
-    public ItemsControlStyle(DefaultTheme theme)
+    public ItemsControlStyle()
     {
         Renderer = new ItemsControlRenderer();
     }

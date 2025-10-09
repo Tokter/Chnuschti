@@ -10,9 +10,9 @@ namespace Chnuschti.Themes.Default;
 
 public class ScreenStyle : Style
 {
-    public ScreenStyle(DefaultTheme theme)
+    public ScreenStyle()
     {
-        Renderer = new ScreenRenderer(theme);
+        Renderer = new ScreenRenderer();
     }
 }
 
@@ -22,16 +22,9 @@ public class ScreenResource : RenderState
 
 public class ScreenRenderer : Renderer<Screen, ScreenResource>
 {
-    private DefaultTheme _theme;
-
-    public ScreenRenderer(DefaultTheme theme)
-    {
-        _theme = theme;
-    }
-
     public override void OnRender(SKCanvas canvas, Screen element, ScreenResource resource, double deltaTime)
     {
-        canvas.Clear(_theme.BackgroundColor);
+        canvas.Clear(ThemeManager.Current.BackgroundColor);
         element.Content?.Render(canvas, deltaTime);
     }
 }

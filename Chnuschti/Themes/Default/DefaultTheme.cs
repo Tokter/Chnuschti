@@ -10,17 +10,6 @@ namespace Chnuschti.Themes.Default;
 
 public class DefaultTheme : Theme
 {
-    public SKColor BorderColor;
-    public SKColor BackgroundColor;
-    public SKColor AccentColor;
-    public SKColor AccentBright;
-    public SKColor AccentDark;
-    public SKColor DisabledColor;
-    public SKColor HoverColor;
-    public SKColor OffColor;
-    public SKColor TextColor;
-    public float Thickness { get; set; } = 1.5f;
-
     public DefaultTheme() : base("Default")
     {
         BorderColor = new SKColor(30, 30, 30, 255);
@@ -33,18 +22,28 @@ public class DefaultTheme : Theme
         OffColor = SKColors.Gray;
         TextColor = SKColors.White;
 
-        Resources
-                .Add<Screen, Style>(new ScreenStyle(this))
-                .Add<Label, Style>(new LabelLargeStyle(this), "LabelLarge")
-                .Add<Label, Style>(new LabelMediumStyle(this), string.Empty) // default label style
-                .Add<Label, Style>(new LabelSmallStyle(this), "LabelSmall")
-                .Add<StackPanel, Style>(new StackPanelStyle(this))
-                .Add<ContentControl, Style>(new ContentControlStyle(this))
-                .Add<ItemsControl, Style>(new ItemsControlStyle(this))
-                .Add<Button, Style>(new ButtonStyle(this))
-                .Add<CheckBox, Style>(new CheckboxStyle(this))
-                .Add<Icon, Style>(new IconStyle(this))
-                .Add<TabControl, Style>(new TabControlStyle(this))
-                ;
+        BorderThickness = 1.5f;
+        Width = 52;
+        Height = 24;
+        HandleOff = Height / 2.0f;
+        HandleOn = Height - 6.0f;
+        HandlePressed = Height - 4.0f;
+        HandleHover = Height + 8.0f;
+        Radius = Height / 2.0f;
+        PressedRadius = 5.0f;
+
+    Resources
+        .Add<Screen, Style>(new ScreenStyle())
+        .Add<Label, Style>(new LabelLargeStyle(), "LabelLarge")
+        .Add<Label, Style>(new LabelMediumStyle(), string.Empty) // default label style
+        .Add<Label, Style>(new LabelSmallStyle(), "LabelSmall")
+        .Add<StackPanel, Style>(new StackPanelStyle())
+        .Add<ContentControl, Style>(new ContentControlStyle())
+        .Add<ItemsControl, Style>(new ItemsControlStyle())
+        .Add<Button, Style>(new ButtonStyle())
+        .Add<CheckBox, Style>(new CheckboxStyle())
+        .Add<Icon, Style>(new IconStyle())
+        .Add<TabControl, Style>(new TabControlStyle())
+        ;
     }
 }

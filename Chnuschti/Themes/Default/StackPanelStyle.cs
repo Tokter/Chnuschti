@@ -10,7 +10,7 @@ namespace Chnuschti.Themes.Default;
 
 public class StackPanelStyle : Style
 {
-    public StackPanelStyle(DefaultTheme theme)
+    public StackPanelStyle()
     {
         Renderer = new StackPanelRenderer();
     }

@@ -11,28 +11,28 @@ namespace Chnuschti.Themes.Default;
 
 public class LabelLargeStyle : Style
 {
-    public LabelLargeStyle(DefaultTheme theme)
+    public LabelLargeStyle()
     {
         Add(Screen.FontSizeProperty, 16f);
-        Renderer = new LabelRenderer(theme);
+        Renderer = new LabelRenderer();
     }
 }
 
 public class LabelMediumStyle : Style
 {
-    public LabelMediumStyle(DefaultTheme theme)
+    public LabelMediumStyle()
     {
         Add(Screen.FontSizeProperty, 14f);
-        Renderer = new LabelRenderer(theme);
+        Renderer = new LabelRenderer();
     }
 }
 
 public class LabelSmallStyle : Style
 {
-    public LabelSmallStyle(DefaultTheme theme)
+    public LabelSmallStyle()
     {
         Add(Screen.FontSizeProperty, 12f);
-        Renderer = new LabelRenderer(theme);
+        Renderer = new LabelRenderer();
     }
 }
 
@@ -42,10 +42,6 @@ public class LabelRenderState : RenderState
 
 public class LabelRenderer : Renderer<Label, LabelRenderState>
 {
-    private readonly DefaultTheme _theme;
-
-    public LabelRenderer(DefaultTheme theme) => _theme = theme;
-
     public override void OnRender(SKCanvas canvas, Label element, LabelRenderState resource, double deltaTime)
     {
         var txt = element.Text ?? string.Empty;
@@ -109,7 +105,7 @@ public class LabelRenderer : Renderer<Label, LabelRenderState>
     public override void OnUpdateRenderState(Label e, LabelRenderState r)
     {
         // ---------- upfront colour decisions ----------
-        var textColor = e.Foreground != SKColor.Empty ? e.Foreground : _theme.TextColor;
+        var textColor = e.Foreground != SKColor.Empty ? e.Foreground : ThemeManager.Current.TextColor;
 
         r.Font.Size = e.FontSize;
 

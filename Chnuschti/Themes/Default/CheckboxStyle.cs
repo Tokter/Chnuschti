@@ -10,9 +10,9 @@ namespace Chnuschti.Themes.Default;
 
 public class CheckboxStyle : Style
 {
-    public CheckboxStyle(DefaultTheme theme)
+    public CheckboxStyle()
     {
-        Renderer = new CheckBoxRenderer(theme);
+        Renderer = new CheckBoxRenderer();
     }
 }
 
@@ -51,17 +51,12 @@ internal sealed class CheckBoxRenderState : RenderState
 
 internal sealed class CheckBoxRenderer : Renderer<CheckBox, CheckBoxRenderState>
 {
-    private readonly DefaultTheme _theme;
-
-
-    public CheckBoxRenderer(DefaultTheme theme) => _theme = theme;
-
     // 1) measure -----------------------------------------------------
     public override SKSize OnMeasure(CheckBox elem, CheckBoxRenderState res, SKSize avail)
     {
         // Reserve box + spacing, remainder is for content
         var remain = new SKSize(
-            Math.Max(0, avail.Width - CheckBox.WIDTH),
+            Math.Max(0, avail.Width - ThemeManager.Current.Width),
             avail.Height);
 
         var childNeed = SKSize.Empty;
@@ -71,8 +66,8 @@ internal sealed class CheckBoxRenderer : Renderer<CheckBox, CheckBoxRenderState>
             childNeed = elem.Content.DesiredSize;
         }
 
-        var w = CheckBox.WIDTH + (elem.Content != null ? childNeed.Width : 0);
-        var h = Math.Max(CheckBox.HEIGHT, childNeed.Height);
+        var w = ThemeManager.Current.Width + (elem.Content != null ? childNeed.Width : 0);
+        var h = Math.Max(ThemeManager.Current.Height, childNeed.Height);
 
         return new SKSize(w, h);
     }
@@ -81,42 +76,34 @@ internal sealed class CheckBoxRenderer : Renderer<CheckBox, CheckBoxRenderState>
     public override void OnRender(SKCanvas c, CheckBox e, CheckBoxRenderState r, double deltaTime)
     {
         // Position box vertically centred
-        var y = (e.ContentBounds.Height - CheckBox.HEIGHT) / 2f;
+        var y = (e.ContentBounds.Height - ThemeManager.Current.Height) / 2f;
 
         // Draw box
-        var radius = CheckBox.HEIGHT / 2.0f;
-        c.DrawRoundRect(0, y, CheckBox.WIDTH, CheckBox.HEIGHT, radius, radius, r.BackgroundPaint);
-        c.DrawRoundRect(0, y, CheckBox.WIDTH, CheckBox.HEIGHT, radius, radius, r.BorderPaint);
+        var radius = ThemeManager.Current.Radius;
+        c.DrawRoundRect(0, y, ThemeManager.Current.Width, ThemeManager.Current.Height, radius, radius, r.BackgroundPaint);
+        c.DrawRoundRect(0, y, ThemeManager.Current.Width, ThemeManager.Current.Height, radius, radius, r.BorderPaint);
 
         if (e.IsMouseOver)
         {
-            c.DrawCircle(r.HandlePosition, y + CheckBox.HEIGHT / 2f, CheckBox.HANDLE_HOVER / 2f, r.HoverPaint);
+            c.DrawCircle(r.HandlePosition, y + ThemeManager.Current.Height / 2f, ThemeManager.Current.HandleHover / 2f, r.HoverPaint);
         }
-        c.DrawCircle(r.HandlePosition, y + CheckBox.HEIGHT / 2f, r.HandleSize / 2f, r.HandlePaint);
+        c.DrawCircle(r.HandlePosition, y + ThemeManager.Current.Height / 2f, r.HandleSize / 2f, r.HandlePaint);
     }
 
     // 3) update / theme reaction ------------------------------------
     public override void OnUpdateRenderState(CheckBox e, CheckBoxRenderState r)
     {
         // ---------- upfront colour decisions ----------
-        var handleOn = e.Foreground != SKColor.Empty ? e.Foreground : _theme.AccentBright;
-        var backOn = e.Background != SKColor.Empty ? e.Background : _theme.AccentColor;
+        var handleOn = e.Foreground != SKColor.Empty ? e.Foreground : ThemeManager.Current.AccentBright;
+        var backOn = e.Background != SKColor.Empty ? e.Background : ThemeManager.Current.AccentColor;
 
         // ---------- quick helpers ----------
-        void InitPaint(SKPaint p, SKPaintStyle style, float stroke = 0, SKColor? color = null)
-        {
-            p.Style = style;
-            p.IsAntialias = true;
-            if (stroke > 0) p.StrokeWidth = stroke;
-            if (color.HasValue) p.Color = color.Value;
-        }
-
         void SetEnabledColours(bool enabled)
         {
             if (enabled)
             {
                 var on = handleOn;      // cache captured locals
-                var off = _theme.OffColor;
+                var off = ThemeManager.Current.OffColor;
 
                 r.BorderPaint.Color = backOn;
                 r.HandlePaint.Color = e.IsChecked ? on : off;
@@ -124,7 +111,7 @@ internal sealed class CheckBoxRenderer : Renderer<CheckBox, CheckBoxRenderState>
             }
             else
             {
-                var disabled = _theme.DisabledColor;
+                var disabled = ThemeManager.Current.DisabledColor;
                 r.BorderPaint.Color = disabled;
                 r.HandlePaint.Color = disabled;
                 r.BackgroundPaint.Color = disabled.WithAlpha(80);
@@ -134,30 +121,35 @@ internal sealed class CheckBoxRenderer : Renderer<CheckBox, CheckBoxRenderState>
         void StartCheckAnimations(bool isChecked)
         {
             r.Animations["HandlePosition"].Start(
-                isChecked ? CheckBox.HEIGHT / 2f : CheckBox.WIDTH - CheckBox.HEIGHT / 2f,
-                isChecked ? CheckBox.WIDTH - CheckBox.HEIGHT / 2f : CheckBox.HEIGHT / 2f);
+                isChecked ? ThemeManager.Current.Height / 2f : ThemeManager.Current.Width - ThemeManager.Current.Height / 2f,
+                isChecked ? ThemeManager.Current.Width - ThemeManager.Current.Height / 2f : ThemeManager.Current.Height / 2f);
 
             r.Animations["HandleColor"].Start(
-                isChecked ? _theme.OffColor : handleOn,
-                isChecked ? handleOn : _theme.OffColor);
+                isChecked ? ThemeManager.Current.OffColor : handleOn,
+                isChecked ? handleOn : ThemeManager.Current.OffColor);
 
             r.Animations["BackgroundColor"].Start(
-                isChecked ? _theme.OffColor : backOn,
-                isChecked ? backOn : _theme.OffColor.WithAlpha(80));
+                isChecked ? ThemeManager.Current.OffColor : backOn,
+                isChecked ? backOn : ThemeManager.Current.OffColor.WithAlpha(80));
 
             r.Animations["HandleSize"].Start(
                 r.HandleSize,
-                isChecked ? CheckBox.HANDLE_ON : CheckBox.HANDLE_OFF);
+                isChecked ? ThemeManager.Current.HandleOn : ThemeManager.Current.HandleOff);
         }
 
         void Initialize()
         {
             if (r.Initialized) return;
 
-            r.Animations["HandlePosition"].Initialize(CheckBox.HEIGHT / 2f);
-            r.Animations["HandleColor"].Initialize(_theme.OffColor);
-            r.Animations["BackgroundColor"].Initialize(_theme.OffColor.WithAlpha(80));
-            r.Animations["HandleSize"].Initialize(CheckBox.HANDLE_OFF);
+            InitPaint(r.BorderPaint, SKPaintStyle.Stroke, ThemeManager.Current.BorderThickness, backOn);
+            InitPaint(r.BackgroundPaint, SKPaintStyle.Fill);
+            InitPaint(r.HandlePaint, SKPaintStyle.Fill);
+            InitPaint(r.HoverPaint, SKPaintStyle.Fill, 0, ThemeManager.Current.HoverColor);
+
+            r.Animations["HandlePosition"].Initialize(ThemeManager.Current.Height / 2f);
+            r.Animations["HandleColor"].Initialize(ThemeManager.Current.OffColor);
+            r.Animations["BackgroundColor"].Initialize(ThemeManager.Current.OffColor.WithAlpha(80));
+            r.Animations["HandleSize"].Initialize(ThemeManager.Current.HandleOff);
 
             r.Initialized = true;
         }
@@ -165,14 +157,8 @@ internal sealed class CheckBoxRenderer : Renderer<CheckBox, CheckBoxRenderState>
         void StartPressAnimation(bool pressed) =>
             r.Animations["HandleSize"].Start(
                 r.HandleSize,
-                pressed ? CheckBox.HANDLE_PRESSED
-                        : (e.IsChecked ? CheckBox.HANDLE_ON : CheckBox.HANDLE_OFF));
-
-        // ---------- one-time paint setup (safe to run every call) ----------
-        InitPaint(r.BorderPaint, SKPaintStyle.Stroke, _theme.Thickness, backOn);
-        InitPaint(r.BackgroundPaint, SKPaintStyle.Fill);
-        InitPaint(r.HandlePaint, SKPaintStyle.Fill);
-        InitPaint(r.HoverPaint, SKPaintStyle.Fill, 0, _theme.HoverColor);
+                pressed ? ThemeManager.Current.HandlePressed
+                        : (e.IsChecked ? ThemeManager.Current.HandleOn : ThemeManager.Current.HandleOff));
 
         Initialize();
 

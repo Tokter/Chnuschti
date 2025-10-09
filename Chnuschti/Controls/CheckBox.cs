@@ -9,13 +9,6 @@ namespace Chnuschti.Controls
 {
     public sealed class CheckBox : ContentControl
     {
-        public const float WIDTH = 52;
-        public const float HEIGHT = 32;
-        public const float HANDLE_OFF = 16f;
-        public const float HANDLE_ON = 24f;
-        public const float HANDLE_PRESSED = 28f;
-        public const float HANDLE_HOVER = 40f;
-
         public CheckBox()
         {
             VerticalContentAlignment = VerticalAlignment.Center; // Center the content vertically
@@ -50,7 +43,7 @@ namespace Chnuschti.Controls
             if (Content == null) return;
 
             var childRect = new SKRect(
-                contentRect.Left + CheckBox.WIDTH,
+                contentRect.Left + ThemeManager.Current.Width,
                 contentRect.Top,
                 contentRect.Right,
                 contentRect.Bottom);

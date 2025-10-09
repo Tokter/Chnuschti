@@ -238,7 +238,9 @@ public class VisualElement : DependencyObject, IDisposable, IElement, IHasChildr
         _isArrangeValid = true;
 
         // parent already removed Margin → remove Padding
-        _contentBounds = ShrinkBy(slot, Padding);
+        //_contentBounds = ShrinkBy(slot, Padding);
+        _contentBounds = slot;
+ 
 
         // let the control position its kids
         ArrangeContent(ToLocal(_contentBounds));
