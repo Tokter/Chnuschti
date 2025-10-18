@@ -9,11 +9,20 @@ using System.Threading.Tasks;
 namespace Chnuschti.Themes.Default;
 
 
+public class LabelExtraLargeStyle : Style
+{
+    public LabelExtraLargeStyle()
+    {
+        Add(Screen.FontSizeProperty, 22f);
+        Renderer = new LabelRenderer();
+    }
+}
+
 public class LabelLargeStyle : Style
 {
     public LabelLargeStyle()
     {
-        Add(Screen.FontSizeProperty, 16f);
+        Add(Screen.FontSizeProperty, 18f);
         Renderer = new LabelRenderer();
     }
 }
@@ -31,7 +40,7 @@ public class LabelSmallStyle : Style
 {
     public LabelSmallStyle()
     {
-        Add(Screen.FontSizeProperty, 12f);
+        Add(Screen.FontSizeProperty, 10f);
         Renderer = new LabelRenderer();
     }
 }

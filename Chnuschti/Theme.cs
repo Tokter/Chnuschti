@@ -23,6 +23,7 @@ public class Theme
     public SKColor HoverColor;
     public SKColor OffColor;
     public SKColor TextColor;
+    public SKColor ShadowColor;
 
     //Control Sizes
     public float BorderThickness = 1.5f;

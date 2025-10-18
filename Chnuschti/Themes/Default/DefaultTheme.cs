@@ -21,6 +21,7 @@ public class DefaultTheme : Theme
         HoverColor = SKColors.Gray.WithAlpha(30);
         OffColor = SKColors.Gray;
         TextColor = SKColors.White;
+        ShadowColor = new SKColor(0, 0, 0, 100);
 
         BorderThickness = 1.5f;
         Width = 52;
@@ -34,13 +35,17 @@ public class DefaultTheme : Theme
 
     Resources
         .Add<Screen, Style>(new ScreenStyle())
-        .Add<Label, Style>(new LabelLargeStyle(), "LabelLarge")
+        .Add<Label, Style>(new LabelExtraLargeStyle(), "ExtraLarge")
+        .Add<Label, Style>(new LabelLargeStyle(), "Large")
+        .Add<Label, Style>(new LabelMediumStyle(), "Medium")
         .Add<Label, Style>(new LabelMediumStyle(), string.Empty) // default label style
-        .Add<Label, Style>(new LabelSmallStyle(), "LabelSmall")
+        .Add<Label, Style>(new LabelSmallStyle(), "Small")
         .Add<StackPanel, Style>(new StackPanelStyle())
         .Add<ContentControl, Style>(new ContentControlStyle())
         .Add<ItemsControl, Style>(new ItemsControlStyle())
         .Add<Button, Style>(new ButtonStyle())
+        .Add<Button, Style>(new ButtonFlatStyle(), "Flat")
+        .Add<Button, Style>(new ButtonOutlinedStyle(), "Outlined")
         .Add<CheckBox, Style>(new CheckboxStyle())
         .Add<Icon, Style>(new IconStyle())
         .Add<TabControl, Style>(new TabControlStyle())

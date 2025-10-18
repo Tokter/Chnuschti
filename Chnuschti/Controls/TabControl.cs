@@ -266,6 +266,7 @@ internal sealed class TabHeaderButton : Button
     {
         _parent = parent;
         _index = index;
+        StyleKey = "Flat";
     }
 
     protected override void OnClick(object? sender, EventArgs e) => _parent.SelectedIndex = _index;
