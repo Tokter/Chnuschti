@@ -253,6 +253,8 @@ public class TabControl : Control, IHasChildren<TabItem>
                 _headerPanel.Arrange(new SKRect(content.Right - hdr.Width, content.Top, content.Right, content.Bottom));
                 break;
         }
+
+        InvalidateDrawResources();
     }
 }
 

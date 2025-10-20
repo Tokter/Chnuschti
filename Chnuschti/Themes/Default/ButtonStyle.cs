@@ -50,6 +50,7 @@ public class ButtonRenderState : RenderState
 {
     public bool PreviousPressedState = false;
     public bool PreviousEnabledState = true;
+    public SKColor  BackgroundColor { get; set; }
     public SKPaint BackgroundPaint { get; set; } = new SKPaint();
     public SKPaint OutlinePaint { get; set; } = new SKPaint();
     public SKPaint ShadowPaint { get; set; } = new SKPaint();
@@ -63,6 +64,18 @@ public class ButtonRenderState : RenderState
         Animations.Add(new AnimationColor("BackgroundColor", TimeSpan.FromSeconds(0.5), (c) => { BackgroundPaint.Color = c; OutlinePaint.Color = c; }));
         Animations.Add(new AnimationNumeric<float>("Radius", TimeSpan.FromSeconds(0.2), (r) => Radius = r));
         Animations.Add(new AnimationNumeric<float>("Depth", TimeSpan.FromSeconds(0.2), (d) => Depth = d));
+    }
+
+    public override void OnInitialize()
+    {
+        InitPaint(BackgroundPaint, SKPaintStyle.Fill);
+        InitPaint(OutlinePaint, SKPaintStyle.Stroke, ThemeManager.Current.BorderThickness);
+        InitPaint(ShadowPaint, SKPaintStyle.Fill, color: ThemeManager.Current.ShadowColor);
+        InitPaint(HoverPaint, SKPaintStyle.Fill, 0, ThemeManager.Current.HoverColor);
+
+        Animations["Radius"].Initialize(ThemeManager.Current.Radius);
+        Animations["BackgroundColor"].Initialize(BackgroundColor);
+        Animations["Depth"].Initialize(3.0f);
     }
 
     protected override void Dispose(bool disposing)
@@ -115,7 +128,6 @@ public class ButtonRenderer : Renderer<Button, ButtonRenderState>
     {
         if (_renderFlags.HasFlag(ButtonRenderFlags.Shadow) && r.Depth > 0.0f)
         {
-            // draw shadow
             c.DrawRoundRect(0 + r.Depth, 0 + r.Depth, e.ContentBounds.Width, e.ContentBounds.Height, r.Radius, r.Radius, r.ShadowPaint);
         }
 
@@ -138,70 +150,54 @@ public class ButtonRenderer : Renderer<Button, ButtonRenderState>
         e.Content?.Render(c, deltaTime);   // child draws in its own local coords
     }
 
+
+    public override void OnInitialize(Button element, ButtonRenderState resource)
+    {
+        resource.BackgroundColor = element.Background != SKColor.Empty ? element.Background : ThemeManager.Current.AccentColor;
+    }
+
     public override void OnUpdateRenderState(Button e, ButtonRenderState r)
     {
-        // ---------- upfront colour decisions ----------
-        var backgroundColor = e.Background != SKColor.Empty ? e.Background : ThemeManager.Current.AccentColor;
-
-        // ---------- quick helpers ----------
-        void SetEnabledColours(bool enabled)
-        {
-            if (enabled)
-            {
-                r.BackgroundPaint.Color = backgroundColor;
-                r.OutlinePaint.Color = backgroundColor;
-            }
-            else
-            {
-                var disabled = ThemeManager.Current.DisabledColor;
-                r.BackgroundPaint.Color = disabled.WithAlpha(80);
-                r.OutlinePaint.Color = disabled;
-            }
-        }
-
-        void StartPressAnimation(bool pressed)
-        {
-            r.Animations["Radius"].Start(
-                pressed ? ThemeManager.Current.Radius : ThemeManager.Current.PressedRadius,
-                pressed ? ThemeManager.Current.PressedRadius : ThemeManager.Current.Radius);
-
-            r.Animations["Depth"].Start(
-                pressed ? 3.0f : 0.0f,
-                pressed ? 0.0f : 3.0f);
-
-            r.Animations["BackgroundColor"].Start(
-                pressed ? backgroundColor : Darken(backgroundColor, 20),
-                pressed ? Darken(backgroundColor, 20) : backgroundColor);
-        }
-
-        void Initialize()
-        {
-            if (r.Initialized) return;
-            InitPaint(r.BackgroundPaint, SKPaintStyle.Fill);
-            InitPaint(r.OutlinePaint, SKPaintStyle.Stroke, ThemeManager.Current.BorderThickness);
-            InitPaint(r.ShadowPaint, SKPaintStyle.Fill, color: ThemeManager.Current.ShadowColor);
-            InitPaint(r.HoverPaint, SKPaintStyle.Fill, 0, ThemeManager.Current.HoverColor);
-
-            r.Animations["Radius"].Initialize(ThemeManager.Current.Radius);
-            r.Animations["BackgroundColor"].Initialize(backgroundColor);
-            r.Animations["Depth"].Initialize(3.0f);
-
-            r.Initialized = true;
-        }
-
-        Initialize();
-
-        // ---------- state-driven updates ----------
         if (e.IsEnabled != r.PreviousEnabledState)
         {
             r.PreviousEnabledState = e.IsEnabled;
-            SetEnabledColours(e.IsEnabled);
+            SetEnabledColours(e, r, e.IsEnabled);
         }
 
         if (e.IsPressed != r.PreviousPressedState)
         {
             r.PreviousPressedState = e.IsPressed;
-            StartPressAnimation(e.IsPressed);
+            StartPressAnimation(e, r, e.IsPressed);
         }
+    }
+
+    private void SetEnabledColours(Button e, ButtonRenderState r, bool enabled)
+    {
+        if (enabled)
+        {
+            r.BackgroundPaint.Color = r.BackgroundColor;
+            r.OutlinePaint.Color = r.BackgroundColor;
+        }
+        else
+        {
+            var disabled = ThemeManager.Current.DisabledColor;
+            r.BackgroundPaint.Color = disabled.WithAlpha(80);
+            r.OutlinePaint.Color = disabled;
+        }
+    }
+
+    private void StartPressAnimation(Button e, ButtonRenderState r, bool pressed)
+    {
+        r.Animations["Radius"].Start(
+            pressed ? ThemeManager.Current.Radius : ThemeManager.Current.PressedRadius,
+            pressed ? ThemeManager.Current.PressedRadius : ThemeManager.Current.Radius);
+
+        r.Animations["Depth"].Start(
+            pressed ? 3.0f : 0.0f,
+            pressed ? 0.0f : 3.0f);
+
+        r.Animations["BackgroundColor"].Start(
+            pressed ? r.BackgroundColor : Darken(r.BackgroundColor, 20),
+            pressed ? Darken(r.BackgroundColor, 20) : r.BackgroundColor);
     }
 }

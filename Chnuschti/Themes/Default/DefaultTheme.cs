@@ -15,8 +15,8 @@ public class DefaultTheme : Theme
         BorderColor = new SKColor(30, 30, 30, 255);
         BackgroundColor = new SKColor(40, 40, 40, 255);
         AccentColor = new SKColor(255, 113, 43, 255);
-        AccentBright = AccentColor.AdjBrightness(60f);
-        AccentDark = AccentColor.AdjBrightness(-60f);
+        AccentBright = AccentColor.AdjBrightness(30f);
+        AccentDark = AccentColor.AdjBrightness(-30f);
         DisabledColor = new SKColor(128, 128, 128, 255);
         HoverColor = SKColors.Gray.WithAlpha(30);
         OffColor = SKColors.Gray;

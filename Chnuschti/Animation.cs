@@ -385,6 +385,25 @@ public sealed class AnimationColor : AnimationBase<SKColor>
     }
 }
 
+public sealed class AnimationVector2 : AnimationBase<Vector2>
+{
+    public AnimationVector2(
+        string name,
+        TimeSpan duration,
+        Action<Vector2> setter,
+        AnimationType animationType = AnimationType.Linear,
+        EasingFunction? custom = null) : base(name, duration, setter, animationType, custom) { }
+    protected override Func<Vector2, Vector2, double, Vector2> GetAnimationFunctionCore(EasingFunction easing)
+    {
+        return (from, to, p) =>
+        {
+            float x = (float)easing(from.X, to.X, p);
+            float y = (float)easing(from.Y, to.Y, p);
+            return new Vector2(x, y);
+        };
+    }
+}
+
 public sealed class AnimationGroup
 {
     private readonly Dictionary<string, IAnimation> _members = new();

@@ -41,6 +41,10 @@ public class Renderer<VisEl,Res> : IRenderer
         }
     }
 
+    public virtual void OnInitialize(VisEl element, Res resource)
+    {
+    }
+
     public virtual void OnRender(SKCanvas canvas, VisEl element, Res resource, double deltaTime)
     {
     }
@@ -83,6 +87,10 @@ public class Renderer<VisEl,Res> : IRenderer
             // Create a new render state if it doesn't exist
             var newRenderState = Activator.CreateInstance<Res>();
             _resources[element.Id] = newRenderState;
+
+            OnInitialize((VisEl)element, (Res)newRenderState);
+            newRenderState.OnInitialize();
+
             OnUpdateRenderState((VisEl)element, newRenderState);
         }
     }
@@ -120,6 +128,20 @@ public class Renderer<VisEl,Res> : IRenderer
             (byte)Math.Max(color.Blue - amount, 0),
             color.Alpha);
     }
+}
+
+public abstract class RenderState : IDisposable
+{
+    private bool _disposedValue;
+
+    public AnimationGroup Animations { get; } = new();
+
+    public SKPaint Paint { get; set; } = new SKPaint();
+    public SKFont Font { get; set; } = new SKFont();
+
+    public virtual void OnInitialize()
+    {
+    }
 
     protected void InitPaint(SKPaint p, SKPaintStyle style, float stroke = 0, SKColor? color = null)
     {
@@ -128,16 +150,6 @@ public class Renderer<VisEl,Res> : IRenderer
         if (stroke > 0) p.StrokeWidth = stroke;
         if (color.HasValue) p.Color = color.Value;
     }
-}
-
-public abstract class RenderState : IDisposable
-{
-    private bool _disposedValue;
-    public bool Initialized { get; set; } = false;
-    public AnimationGroup Animations { get; } = new();
-
-    public SKPaint Paint { get; set; } = new SKPaint();
-    public SKFont Font { get; set; } = new SKFont();
 
     protected virtual void Dispose(bool disposing)
     {
