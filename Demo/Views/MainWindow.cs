@@ -75,11 +75,9 @@ public class MainWindow : Screen
                             Maximum = 100,
                             Viewport = 20,
                             Width = 12,
-                        }.With(sb =>
-                        {
-                            DockPanel.SetDock(sb, Dock.Left);
-                            sb.SetBinding(ScrollBar.ValueProperty, this.TwoWayToDC<MainViewModel, float>(mvm => mvm.ScrollBar1Value));
-                        }),
+                        }
+                        .Dock(Dock.Left)
+                        .Bind(ScrollBar.ValueProperty, this.TwoWayToDC<MainViewModel, float>(mvm => mvm.ScrollBar1Value)),
                         new ScrollBar
                         {
                             Orientation = Orientation.Horizontal,
@@ -88,24 +86,14 @@ public class MainWindow : Screen
                             Maximum = 100,
                             Viewport = 20,
                             Height = 12
-                        }.With(sb =>
-                        {
-                            DockPanel.SetDock(sb, Dock.Top);
-                            sb.SetBinding(ScrollBar.ValueProperty, this.TwoWayToDC<MainViewModel, float>(mvm => mvm.ScrollBar2Value));
-                        }),
+                        }
+                        .Dock(Dock.Top)
+                        .Bind(ScrollBar.ValueProperty, this.TwoWayToDC<MainViewModel, float>(mvm => mvm.ScrollBar2Value)),
                         new StackPanel()
                             .Children(
                                 //Create a label and bind Text to scroll position for testing
-                                new Label()
-                                .With(l =>
-                                {
-                                    l.SetBinding(Label.TextProperty, this.OneWayToDC<MainViewModel, string>(mvm => mvm.ScrollBar1ValueText));
-                                }),
-                                new Label()
-                                .With(l =>
-                                {
-                                    l.SetBinding(Label.TextProperty, this.OneWayToDC<MainViewModel, string>(mvm => mvm.ScrollBar2ValueText));
-                                })
+                                new Label().Bind(Label.TextProperty, this.OneWayToDC<MainViewModel, string>(mvm => mvm.ScrollBar1ValueText)),
+                                new Label().Bind(Label.TextProperty, this.OneWayToDC<MainViewModel, string>(mvm => mvm.ScrollBar2ValueText))
                             )
                     ))
                 .Out(out stats)
@@ -177,25 +165,25 @@ public class MainWindow : Screen
                                 Text = "Left",
                                 Margin = new Thickness(10), 
                                 VerticalContentAlignment=VerticalAlignment.Center 
-                            }.With(l => DockPanel.SetDock(l, Dock.Left)),
+                            }.Dock(Dock.Left),
                             new Label 
                             { 
                                 Text = "Right", 
                                 Margin = new Thickness(10), 
                                 VerticalContentAlignment = VerticalAlignment.Center 
-                            }.With(l => DockPanel.SetDock(l, Dock.Right)),
+                            }.Dock(Dock.Right),
                             new Label 
                             { 
                                 Text = "Top", 
                                 Margin = new Thickness(10),
                                 HorizontalContentAlignment = HorizontalAlignment.Center
-                            }.With(l => DockPanel.SetDock(l, Dock.Top)),
+                            }.Dock(Dock.Top),
                             new Label 
                             { 
                                 Text = "Bottom", 
                                 Margin = new Thickness(10),
                                 HorizontalContentAlignment = HorizontalAlignment.Center
-                            }.With(l => DockPanel.SetDock(l, Dock.Bottom)),
+                            }.Dock(Dock.Bottom),
                             new Label 
                             { 
                                 Text = "Center (fills remaining space)", 

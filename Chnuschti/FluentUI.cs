@@ -167,6 +167,19 @@ public static class FluentUI
         return value;
     }
 
+    public static T Bind<T>(this T el, DependencyProperty dp, IReadOnlyBinding binding)
+        where T : DependencyObject
+    {
+        el.SetBinding(dp, binding);
+        return el;
+    }
+
+    public static T Dock<T>(this T el, Dock value) where T : DependencyObject
+    {
+        DockPanel.SetDock(el, value);
+        return el;
+    }
+
     //public static T SetText<T>(this T element, string text)
     //    where T : IHasText
     //{
