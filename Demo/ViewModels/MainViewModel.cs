@@ -45,6 +45,20 @@ public class MainViewModel : ViewModelBase
         set => SetProperty(ref _title, value);
     }
 
+    private double _slider1Value = 25.0;
+    public int ScrollBar1Value
+    {
+        get => (int)_slider1Value;
+        set => SetProperty(ref _slider1Value, value);
+    }
+
+    private double _slider2Value = 25.0;
+    public int ScrollBar2Value
+    {
+        get => (int)_slider2Value;
+        set => SetProperty(ref _slider2Value, value);
+    }
+
     public bool IsButtonEnabled
     {
         get => _isButtonEnabled;

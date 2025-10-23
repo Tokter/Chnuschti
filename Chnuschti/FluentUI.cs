@@ -49,7 +49,7 @@ public static class FluentUI
     /// <param name="parent">The parent element to which the child elements will be added. Cannot be <see langword="null"/>.</param>
     /// <param name="children">An array of child elements to add to the parent. Can be <see langword="null"/> or empty.</param>
     /// <returns>The parent element, after the child elements have been added.</returns>
-    public static TParent Children<TParent, TChild>(this TParent parent, params VisualElement[] children)
+    public static TParent Children<TParent, TChild>(this TParent parent, object v, params VisualElement[] children)
             where TParent : IHasChildren<TChild>
             where TChild : VisualElement
     {

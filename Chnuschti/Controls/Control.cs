@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using static Chnuschti.InputEvent;
 
 namespace Chnuschti.Controls;
 
@@ -18,12 +19,12 @@ public class Control : DataElement
     public static readonly DependencyProperty BoldProperty = DependencyProperty.Register(nameof(Bold), typeof(bool), typeof(Control), new PropertyMetadata(false, OnInvalidateDrawResources, inherits: true));
     public static readonly DependencyProperty HorizontalContentAlignmentProperty = DependencyProperty.Register(nameof(HorizontalContentAlignment), typeof(HorizontalAlignment), typeof(Control), new PropertyMetadata(HorizontalAlignment.Stretch, OnInvalidateDrawResources));
     public static readonly DependencyProperty VerticalContentAlignmentProperty = DependencyProperty.Register(nameof(VerticalContentAlignment), typeof(VerticalAlignment), typeof(Control), new PropertyMetadata(VerticalAlignment.Stretch, OnInvalidateDrawResources));
-    public bool IsEnabled
-    {
-        get => (bool)GetValue(IsEnabledProperty)!;
-        set => SetValue(IsEnabledProperty, value);
-    }
+    public static readonly DependencyProperty FocusableProperty = DependencyProperty.Register(nameof(Focusable), typeof(bool), typeof(Control), new PropertyMetadata(false));
+    public static readonly DependencyProperty IsTabStopProperty = DependencyProperty.Register(nameof(IsTabStop), typeof(bool), typeof(Control), new PropertyMetadata(true));
+    public static readonly DependencyProperty TabIndexProperty = DependencyProperty.Register(nameof(TabIndex), typeof(int), typeof(Control), new PropertyMetadata(0));
+    public static readonly DependencyProperty IsFocusedProperty = DependencyProperty.Register(nameof(IsFocused), typeof(bool), typeof(Control), new PropertyMetadata(false, OnFocusedChanged));
 
+    public bool IsEnabled { get => (bool)GetValue(IsEnabledProperty)!; set => SetValue(IsEnabledProperty, value); }
     public float FontSize { get => (float)GetValue(FontSizeProperty)!; set => SetValue(FontSizeProperty, value); }
     public string? FontFamily { get => (string?)GetValue(FontFamilyProperty); set => SetValue(FontFamilyProperty, value); }
     public SKColor Foreground { get => (SKColor)GetValue(ForegroundProperty)!; set => SetValue(ForegroundProperty, value); }
@@ -31,6 +32,11 @@ public class Control : DataElement
     public bool Bold { get => (bool)GetValue(BoldProperty)!; set => SetValue(BoldProperty, value); }
     public HorizontalAlignment HorizontalContentAlignment { get => (HorizontalAlignment)GetValue(HorizontalContentAlignmentProperty)!; set => SetValue(HorizontalContentAlignmentProperty, value); }
     public VerticalAlignment VerticalContentAlignment { get => (VerticalAlignment)GetValue(VerticalContentAlignmentProperty)!; set => SetValue(VerticalContentAlignmentProperty, value); }
+    public bool Focusable { get => (bool)GetValue(FocusableProperty)!; set => SetValue(FocusableProperty, value); }
+    public bool IsTabStop { get => (bool)GetValue(IsTabStopProperty)!; set => SetValue(IsTabStopProperty, value); }
+    public int TabIndex { get => (int)GetValue(TabIndexProperty)!; set => SetValue(TabIndexProperty, value); }
+    public bool IsFocused { get => (bool)GetValue(IsFocusedProperty)!; set => SetValue(IsFocusedProperty, value); }
+
 
     //Convert string to Label
     public static implicit operator Control(string text)
@@ -69,6 +75,7 @@ public class Control : DataElement
 
     public virtual void MouseDown(SKPoint screenPt)
     {
+        if (Focusable) FocusManager.Instance.RequestFocus(this);
         IsPressed = true;
     }
 
@@ -96,6 +103,19 @@ public class Control : DataElement
 
     protected virtual void OnClick(object? sender, EventArgs e)
     {
+    }
+
+    protected virtual void OnGotFocus() { }
+    protected virtual void OnLostFocus() { }
+
+    public virtual void OnKeyDown(in InputEvent e) { }
+    public virtual void OnKeyUp(in InputEvent e) { }
+    public virtual void OnTextInput(in TextInputEvent e) { } // for printable chars / IME commit
+
+    private static void OnFocusedChanged(DependencyObject d, DependencyProperty p, object? o, object? n)
+    {
+        var c = (Control)d;
+        if ((bool)n!) c.OnGotFocus(); else c.OnLostFocus();
     }
 
     // Provide helpers for alignment that can be used in ArrangeContent

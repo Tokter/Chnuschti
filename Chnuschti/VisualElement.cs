@@ -13,6 +13,15 @@ public class VisualElement : DependencyObject, IDisposable, IElement, IHasChildr
     public long Id { get; } = Interlocked.Increment(ref _idCounter);
     private static long _idCounter;
 
+    internal int VisualIndex { get; set; }
+    internal ulong TreeVersion { get; private set; }
+
+    internal void BumpTreeVersion()
+    {
+        TreeVersion++;
+        ParentInternal?.BumpTreeVersion();
+    }
+
     #region Style
     private Style? _style;
     private string _styleKey = string.Empty; // key for style lookup
@@ -306,6 +315,7 @@ public class VisualElement : DependencyObject, IDisposable, IElement, IHasChildr
     {
         child.ParentInternal = this;
         _children.Add(child);
+        BumpTreeVersion();
         this.InvalidateMeasure(); // child added, measure may change
         return this;
     }
@@ -334,6 +344,8 @@ public class VisualElement : DependencyObject, IDisposable, IElement, IHasChildr
         if (oldChild != null)
         {
             _children.Remove(oldChild);
+            BumpTreeVersion();
+            BumpTreeVersion();
             oldChild.ParentInternal = null;
             oldChild.InvalidateMeasure(); // child removed, measure may change
         }
@@ -349,6 +361,7 @@ public class VisualElement : DependencyObject, IDisposable, IElement, IHasChildr
             else
             {
                 _children.Add(newChild);
+                BumpTreeVersion();
                 newChild.ParentInternal = this;
                 this.InvalidateMeasure(); // child added, measure may change
             }

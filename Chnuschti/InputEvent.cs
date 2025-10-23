@@ -16,6 +16,7 @@ public enum InputEventType
     MouseUp,
     KeyUp,
     KeyDown,
+    TextInput,
 }
 
 [Flags]
@@ -327,4 +328,9 @@ public class InputEvent : EventArgs
         };
     }
 
+    public readonly struct TextInputEvent
+    {
+        public readonly string Text;  // UTF-16 text, can be multi-codepoint (IME)
+        public TextInputEvent(string text) { Text = text; }
+    }
 }

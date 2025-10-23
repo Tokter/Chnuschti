@@ -107,4 +107,14 @@ public abstract class DependencyObject : INotifyPropertyChanged
         // Initial transfer for OneWay / TwoWay / OneTime
         SetValue(target, binding.Value);
     }
+
+    //Two way binding helper
+    public void SetBinding(DependencyProperty target, ITwoWayBinding binding)
+    {
+        _bindings[target] = binding;
+        // React to source changes
+        binding.ValueChanged += () => SetValue(target, binding.Value);
+        // Initial transfer for OneWay / TwoWay / OneTime
+        SetValue(target, binding.Value);
+    }
 }

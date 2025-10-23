@@ -11,11 +11,13 @@ namespace Chnuschti.WindowsForms;
 
 public class Platform : IPlatform
 {
+    private Form _form;
     private SKGLControl _control;
     public ChnuschtiApp Application { get; }
 
-    public Platform(SKGLControl control, ChnuschtiApp application)
+    public Platform(Form form, SKGLControl control, ChnuschtiApp application)
     {
+        _form = form;
         _control = control;
 
         _control.Resize += Control_Resize;

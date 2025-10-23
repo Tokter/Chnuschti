@@ -28,7 +28,8 @@ public class ChnuschtiApp
         // Override this method to add startup logic
     }
 
-    private Control? _capturedControl; // The control that has captured the mouse
+    private Control? _mouseOver;     // who the cursor is currently over (hover)
+    private Control? _mouseCapture;  // who owns the mouse during a drag
 
     public float Scale { get; set; } = 1.0f;
     public float ScreenWidth { get; set; }
@@ -85,71 +86,115 @@ public class ChnuschtiApp
 
         switch (inputEvent.InputEventType)
         {
-            case InputEventType.KeyDown:
-                break;
-
             case InputEventType.MouseMove:
-
-                VisualElement? mouseOver = null;
-
-                MousePosX = inputEvent.MousePos.X;
-                MousePosY = inputEvent.MousePos.Y;
-
-
-                if (_capturedControl != null)
                 {
-                    mouseOver = VisualTreeHelper.HitTest(_capturedControl, inputEvent.MousePos);
-                }
+                    MousePosX = inputEvent.MousePos.X;
+                    MousePosY = inputEvent.MousePos.Y;
 
-                if (mouseOver == null)
-                {
-                    mouseOver = VisualTreeHelper.HitTest(Screen, inputEvent.MousePos);
-                }
-
-                if (mouseOver is Control mouseOverControl)
-                {
-                    if (mouseOverControl != _capturedControl)
+                    if (_mouseCapture != null)
                     {
-                        _capturedControl?.MouseLeave(inputEvent.MousePos); // Leave previous control
-                        _capturedControl = mouseOverControl; // Capture the new control
-                        if (_capturedControl.IsEnabled)
-                        {
-                            _capturedControl.MouseEnter(inputEvent.MousePos);
-                        }
+                        // While captured → no hit-test, just forward moves
+                        if (_mouseCapture.IsEnabled) _mouseCapture.MouseMove(inputEvent.MousePos);
+                        return true;
                     }
 
-                    if (_capturedControl.IsEnabled)
+                    // No capture → maintain hover enter/leave and forward move to hovered control
+                    var hit = VisualTreeHelper.HitTest(Screen, inputEvent.MousePos) as Control;
+
+                    if (!ReferenceEquals(hit, _mouseOver))
                     {
-                        _capturedControl.MouseMove(inputEvent.MousePos);
+                        _mouseOver?.MouseLeave(inputEvent.MousePos);
+                        _mouseOver = hit;
+                        if (_mouseOver?.IsEnabled == true) _mouseOver.MouseEnter(inputEvent.MousePos);
                     }
+
+                    if (_mouseOver?.IsEnabled == true) _mouseOver.MouseMove(inputEvent.MousePos);
+                    break;
                 }
-                break;
 
             case InputEventType.MouseDown:
-                if (VisualTreeHelper.HitTest(Screen, inputEvent.MousePos) is Control cdown)
                 {
-                    if (cdown.IsEnabled)
+                    // Find control under cursor and capture it immediately
+                    var hit = VisualTreeHelper.HitTest(Screen, inputEvent.MousePos) as Control;
+
+                    // Update hover state to the one we clicked, for consistency
+                    if (!ReferenceEquals(hit, _mouseOver))
                     {
-                        _capturedControl = cdown; // Capture the control
-                        _capturedControl.MouseDown(inputEvent.MousePos);
+                        _mouseOver?.MouseLeave(inputEvent.MousePos);
+                        _mouseOver = hit;
+                        if (_mouseOver?.IsEnabled == true) _mouseOver.MouseEnter(inputEvent.MousePos);
                     }
+
+                    if (_mouseOver?.IsEnabled == true)
+                    {
+                        _mouseCapture = _mouseOver;           // <- capture starts here
+                        _mouseCapture.MouseDown(inputEvent.MousePos);
+                    }
+                    else
+                    {
+                        _mouseCapture = null;
+                    }
+                    break;
                 }
-                else
-                {
-                    _capturedControl = null; // No control captured
-                }
-                break;
 
             case InputEventType.MouseUp:
-                _capturedControl?.MouseUp(inputEvent.MousePos);
-                _capturedControl = null;
-                break;
+                {
+                    if (_mouseCapture != null)
+                    {
+                        var cap = _mouseCapture;
+                        _mouseCapture = null;
+                        if (cap.IsEnabled) cap.MouseUp(inputEvent.MousePos);
 
-            default:
-                // Handle other input events if necessary
-                break;
+                        // After releasing, re-evaluate hover under current cursor
+                        var hit = VisualTreeHelper.HitTest(Screen, inputEvent.MousePos) as Control;
+                        if (!ReferenceEquals(hit, _mouseOver))
+                        {
+                            _mouseOver?.MouseLeave(inputEvent.MousePos);
+                            _mouseOver = hit;
+                            if (_mouseOver?.IsEnabled == true) _mouseOver.MouseEnter(inputEvent.MousePos);
+                        }
+                    }
+                    else
+                    {
+                        // No capture → normal mouse up on hovered control
+                        if (_mouseOver?.IsEnabled == true) _mouseOver.MouseUp(inputEvent.MousePos);
+                    }
+                    break;
+                }
+
+            case InputEventType.KeyDown:
+                {
+                    // Tab navigation is app-level
+                    if (inputEvent.Key == Key.Tab)
+                    {
+                        if (inputEvent.Shift) FocusManager.Instance.MoveFocusPrev(Screen);
+                        else FocusManager.Instance.MoveFocusNext(Screen);
+                        return true; // handled
+                    }
+
+                    // Esc to clear focus? (optional)
+                    // if (e.Key == Key.Escape) { FocusManager.Instance.ClearFocus(); return true; }
+
+                    FocusManager.Instance.DispatchKeyDown(inputEvent);
+                    break;
+                }
+
+            case InputEventType.KeyUp:
+                {
+                    FocusManager.Instance.DispatchKeyUp(inputEvent);
+                    break;
+                }
+
+            case InputEventType.TextInput:
+                {
+                    // This event should carry characters (already layout/IME-processed)
+                    //FocusManager.Instance.DispatchTextInput(new TextInputEvent(inputEvent.Text));
+                    break;
+                }
+
         }
 
         return true;
     }
+
 }

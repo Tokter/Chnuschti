@@ -1,4 +1,6 @@
-﻿namespace WindowsFormsDemo
+﻿using Chnuschti.WindowsForms;
+
+namespace WindowsFormsDemo
 {
     partial class MainWindow
     {
@@ -28,7 +30,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            skglControl = new SkiaSharp.Views.Desktop.SKGLControl();
+            skglControl = new FocusableSKGLControl();
             SuspendLayout();
             // 
             // skglControl

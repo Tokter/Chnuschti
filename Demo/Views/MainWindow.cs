@@ -18,7 +18,7 @@ public class MainWindow : Screen
 
     protected override void InitializeComponent()
     {
-        VisualElement.ShowLayoutDebug = true;
+        VisualElement.ShowLayoutDebug = false;
 
         TabItem? stats = null;
 
@@ -63,13 +63,9 @@ public class MainWindow : Screen
             )
             .Add(tc =>
                 new TabItem()
-                .With(ti => ti.Header = "Stats")
+                .With(ti => ti.Header = "Scroll Bars")
                 .Content(
-                    new StackPanel()
-                    .With(sp =>
-                    {
-                        sp.Orientation = Orientation.Horizontal;
-                    })
+                    new DockPanel()
                     .Children(
                         new ScrollBar
                         {
@@ -78,21 +74,24 @@ public class MainWindow : Screen
                             Minimum = 0,
                             Maximum = 100,
                             Viewport = 20,
-                        }
+                        }.With(sb => DockPanel.SetDock(sb, Dock.Left))
+                        //.SetBinding(ScrollBar.ValueProperty, this.OneWayToDC<MainViewModel, float>(mvm => mvm.ScrollBar1Value))
+                        ,
+                        new ScrollBar
+                        {
+                            Orientation = Orientation.Horizontal,
+                            Margin = new Thickness(10),
+                            Minimum = 0,
+                            Maximum = 100,
+                            Viewport = 20,
+                        }.With(sb => DockPanel.SetDock(sb, Dock.Top)),
+                        new StackPanel()
+                            .Children(
+                                //Create a label and bind Text to scroll position for testing
+                                new Label { Text = "Scroll Position: 0" }
+                            )
                     ))
                 .Out(out stats)
-            )
-            .Add(tc =>
-                new TabItem()
-                .With(ti => ti.Header = "Page 3")
-                .Content(
-                    new Button()
-                    .With(b => b.Content = "Remove Stats Page")
-                    .With(b => b.Command = new DelegateCommand(_ =>
-                    {
-                        if (stats != null) tc.RemoveTab(stats);
-                    }))
-                )
             )
             .Add(tc =>
                 new TabItem()

@@ -20,24 +20,12 @@ public class ScrollBarRenderState : RenderState
     public SKPaint HoverPaint { get; } = new();
     public SKPaint DisabledPaint { get; } = new();
 
-    public float AnimatedOffset;
-    public float AnimatedSize;
-
-    public ScrollBarRenderState()
-    {
-        Animations.Add(new AnimationNumeric<float>("HandleOffset", TimeSpan.FromSeconds(0.05), v => AnimatedOffset = v, AnimationType.EaseInOut));
-        Animations.Add(new AnimationNumeric<float>("HandleSize", TimeSpan.FromSeconds(0.25), v => AnimatedSize = v, AnimationType.EaseInOut));
-    }
-
     public override void OnInitialize()
     {
         InitPaint(TrackPaint, SKPaintStyle.Fill, 0, ThemeManager.Current.ShadowColor.WithAlpha(60));
         InitPaint(HandlePaint, SKPaintStyle.Fill, 0, ThemeManager.Current.AccentColor);
         InitPaint(HoverPaint, SKPaintStyle.Fill, 0, ThemeManager.Current.HoverColor);
         InitPaint(DisabledPaint, SKPaintStyle.Fill, 0, ThemeManager.Current.DisabledColor.WithAlpha(100));
-
-        Animations["HandleOffset"].Initialize(0f);
-        Animations["HandleSize"].Initialize(ThemeManager.Current.Height);
     }
 
     protected override void Dispose(bool disposing)
@@ -68,19 +56,9 @@ public class ScrollBarRenderer : Renderer<ScrollBar, ScrollBarRenderState>
         }
     }
 
-    public override void OnInitialize(ScrollBar e, ScrollBarRenderState r)
-    {
-    }
-
     public override void OnUpdateRenderState(ScrollBar e, ScrollBarRenderState r)
     {
-        var (trackStart, trackLen, handleLen, handleOffset) = e.GetRenderMetrics();
-
-        // Animate handle movement & size
-        r.Animations["HandleOffset"].Start(r.AnimatedOffset, handleOffset);
-        r.Animations["HandleSize"].Start(r.AnimatedSize, handleLen);
-
-        // Colour adjustments
+        // Colour adjustments only; no position/size animation
         if (!e.IsEnabled)
         {
             r.HandlePaint.Color = ThemeManager.Current.DisabledColor;
@@ -103,21 +81,16 @@ public class ScrollBarRenderer : Renderer<ScrollBar, ScrollBarRenderState>
     {
         var bounds = e.ContentBounds;
 
-        // Draw track
+        // Track
         c.DrawRect(0, 0, bounds.Width, bounds.Height, e.IsEnabled ? r.TrackPaint : r.DisabledPaint);
 
+        // Handle (direct from current value/metrics)
+        var (_, _, handleLen, handleOffset) = e.GetRenderMetrics();
         var thickness = e.Orientation == Orientation.Vertical ? bounds.Width : bounds.Height;
 
-        // Handle rect
-        SKRect handleRect;
-        if (e.Orientation == Orientation.Vertical)
-        {
-            handleRect = new SKRect(0, r.AnimatedOffset, thickness, r.AnimatedOffset + r.AnimatedSize);
-        }
-        else
-        {
-            handleRect = new SKRect(r.AnimatedOffset, 0, r.AnimatedOffset + r.AnimatedSize, thickness);
-        }
+        SKRect handleRect = e.Orientation == Orientation.Vertical
+            ? new SKRect(0, handleOffset, thickness, handleOffset + handleLen)
+            : new SKRect(handleOffset, 0, handleOffset + handleLen, thickness);
 
         // Hover aura
         if (e.IsMouseOver && e.IsEnabled)
