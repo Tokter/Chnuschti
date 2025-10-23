@@ -35,4 +35,5 @@ public class Theme
     public float HandleHover = 40f;
     public float Radius = 12.0f;
     public float PressedRadius = 5f;
+    public float MinScrollBarSize = 10.0f;
 }

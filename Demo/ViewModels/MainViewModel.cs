@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -45,19 +46,31 @@ public class MainViewModel : ViewModelBase
         set => SetProperty(ref _title, value);
     }
 
-    private double _slider1Value = 25.0;
-    public int ScrollBar1Value
+    private float _slider1Value = 25.0f;
+    public float ScrollBar1Value
     {
-        get => (int)_slider1Value;
-        set => SetProperty(ref _slider1Value, value);
+        get => _slider1Value;
+        set
+        {
+            SetProperty(ref _slider1Value, value);
+            OnPropertyChanged(nameof(ScrollBar1ValueText));
+        }
     }
 
-    private double _slider2Value = 25.0;
-    public int ScrollBar2Value
+    public string ScrollBar1ValueText => $"ScrollBar1 Value = {_slider1Value:F1}";
+
+    private float _slider2Value = 25.0f;
+    public float ScrollBar2Value
     {
-        get => (int)_slider2Value;
-        set => SetProperty(ref _slider2Value, value);
+        get => _slider2Value;
+        set
+        {
+            SetProperty(ref _slider2Value, value);
+            OnPropertyChanged(nameof(ScrollBar2ValueText));
+        }        
     }
+
+    public string ScrollBar2ValueText => $"ScrollBar2 Value = {_slider2Value:F1}";
 
     public bool IsButtonEnabled
     {

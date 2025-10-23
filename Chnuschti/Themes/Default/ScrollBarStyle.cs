@@ -7,8 +7,8 @@ public class ScrollBarStyle : Style
 {
     public ScrollBarStyle()
     {
-        Add(ScrollBar.MinWidthProperty, ThemeManager.Current.Height);   // thickness if vertical
-        Add(ScrollBar.MinHeightProperty, ThemeManager.Current.Height);  // thickness if horizontal
+        Add(ScrollBar.MinWidthProperty, ThemeManager.Current.MinScrollBarSize);   // thickness if vertical
+        Add(ScrollBar.MinHeightProperty, ThemeManager.Current.MinScrollBarSize);  // thickness if horizontal
         Renderer = new ScrollBarRenderer();
     }
 }
@@ -82,7 +82,8 @@ public class ScrollBarRenderer : Renderer<ScrollBar, ScrollBarRenderState>
         var bounds = e.ContentBounds;
 
         // Track
-        c.DrawRect(0, 0, bounds.Width, bounds.Height, e.IsEnabled ? r.TrackPaint : r.DisabledPaint);
+        var trackRect = new SKRect(0, 0, bounds.Width, bounds.Height);
+        c.DrawRoundRect(trackRect, ThemeManager.Current.Radius, ThemeManager.Current.Radius, e.IsEnabled ? r.TrackPaint : r.DisabledPaint);
 
         // Handle (direct from current value/metrics)
         var (_, _, handleLen, handleOffset) = e.GetRenderMetrics();

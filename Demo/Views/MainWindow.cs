@@ -74,9 +74,12 @@ public class MainWindow : Screen
                             Minimum = 0,
                             Maximum = 100,
                             Viewport = 20,
-                        }.With(sb => DockPanel.SetDock(sb, Dock.Left))
-                        //.SetBinding(ScrollBar.ValueProperty, this.OneWayToDC<MainViewModel, float>(mvm => mvm.ScrollBar1Value))
-                        ,
+                            Width = 12,
+                        }.With(sb =>
+                        {
+                            DockPanel.SetDock(sb, Dock.Left);
+                            sb.SetBinding(ScrollBar.ValueProperty, this.TwoWayToDC<MainViewModel, float>(mvm => mvm.ScrollBar1Value));
+                        }),
                         new ScrollBar
                         {
                             Orientation = Orientation.Horizontal,
@@ -84,11 +87,25 @@ public class MainWindow : Screen
                             Minimum = 0,
                             Maximum = 100,
                             Viewport = 20,
-                        }.With(sb => DockPanel.SetDock(sb, Dock.Top)),
+                            Height = 12
+                        }.With(sb =>
+                        {
+                            DockPanel.SetDock(sb, Dock.Top);
+                            sb.SetBinding(ScrollBar.ValueProperty, this.TwoWayToDC<MainViewModel, float>(mvm => mvm.ScrollBar2Value));
+                        }),
                         new StackPanel()
                             .Children(
                                 //Create a label and bind Text to scroll position for testing
-                                new Label { Text = "Scroll Position: 0" }
+                                new Label()
+                                .With(l =>
+                                {
+                                    l.SetBinding(Label.TextProperty, this.OneWayToDC<MainViewModel, string>(mvm => mvm.ScrollBar1ValueText));
+                                }),
+                                new Label()
+                                .With(l =>
+                                {
+                                    l.SetBinding(Label.TextProperty, this.OneWayToDC<MainViewModel, string>(mvm => mvm.ScrollBar2ValueText));
+                                })
                             )
                     ))
                 .Out(out stats)
