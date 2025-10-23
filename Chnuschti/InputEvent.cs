@@ -240,6 +240,7 @@ public class InputEvent : EventArgs
     public bool Control { get; set; }
     public bool Alt { get; set; }
     public Key Key { get; set; }
+    public string? Text { get; set; } = null;
 
     public InputEvent(InputEventType inputEventType)
     {
@@ -325,6 +326,14 @@ public class InputEvent : EventArgs
             Shift = shift,
             Control = control,
             Alt = alt
+        };
+    }
+
+    public static InputEvent KeyPress(string text)
+    {
+        return new InputEvent(InputEventType.TextInput)
+        {
+            Text = text
         };
     }
 

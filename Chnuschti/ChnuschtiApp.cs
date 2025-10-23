@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Chnuschti.InputEvent;
 
 namespace Chnuschti;
 
@@ -187,8 +188,7 @@ public class ChnuschtiApp
 
             case InputEventType.TextInput:
                 {
-                    // This event should carry characters (already layout/IME-processed)
-                    //FocusManager.Instance.DispatchTextInput(new TextInputEvent(inputEvent.Text));
+                    if (inputEvent.Text != null) FocusManager.Instance.DispatchTextInput(new TextInputEvent(inputEvent.Text));
                     break;
                 }
 

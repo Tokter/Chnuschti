@@ -24,6 +24,7 @@ public class Platform : IPlatform
         _control.PaintSurface += Control_PaintSurface;
         _control.KeyDown += Control_KeyDown;
         _control.KeyUp += Control_KeyUp;
+        _control.KeyPress += Control_KeyPress;
         _control.MouseMove += Control_MouseMove;
         _control.MouseDown += Control_MouseDown;
         _control.MouseUp += Control_MouseUp;
@@ -67,6 +68,11 @@ public class Platform : IPlatform
         _lastControl = e.Control;
         _lastAlt = e.Alt;
         Application.ProcessInputEvent(InputEvent.KeyUp((Key)e.KeyValue, _lastShift, _lastControl, _lastAlt));
+    }
+
+    private void Control_KeyPress(object? sender, KeyPressEventArgs e)
+    {
+        Application.ProcessInputEvent(InputEvent.KeyPress(e.KeyChar.ToString()));
     }
 
     public void Control_MouseMove(object? sender, MouseEventArgs e)
