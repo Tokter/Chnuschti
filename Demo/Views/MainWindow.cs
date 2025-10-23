@@ -18,7 +18,7 @@ public class MainWindow : Screen
 
     protected override void InitializeComponent()
     {
-        VisualElement.ShowLayoutDebug = false;
+        VisualElement.ShowLayoutDebug = true;
 
         TabItem? stats = null;
 
@@ -27,26 +27,26 @@ public class MainWindow : Screen
             {
                 tc.Margin = new Thickness(5);
                 tc.StripPlacement = TabStripPlacement.Top;
-                tc.HeaderTemplate = new DataTemplate<TabItem>(tab =>
-                {
-                    // Example: header with title + ✖ close-button
-                    var row = new StackPanel { Orientation = Orientation.Horizontal };
-                    row.Children(
-                        new Label
-                        {
-                            Text = tab.Header?.ToString() ?? "Untitled",
-                            Margin = new Thickness(4),
-                        },
+                //tc.HeaderTemplate = new DataTemplate<TabItem>(tab =>
+                //{
+                //    // Example: header with title + ✖ close-button
+                //    var row = new StackPanel { Orientation = Orientation.Horizontal };
+                //    row.Children(
+                //        new Label
+                //        {
+                //            Text = tab.Header?.ToString() ?? "Untitled",
+                //            Margin = new Thickness(4),
+                //        },
 
-                        new Button
-                        {
-                            Content = "X",
-                            Padding = new Thickness(0, 0, 2, 0),
-                            StyleKey = "Flat",
-                            Command = new DelegateCommand(_ => tab.ParentTabControl?.RemoveTab(tab))
-                        });
-                    return row;
-                });
+                //        new Button
+                //        {
+                //            Content = "X",
+                //            Padding = new Thickness(0, 0, 2, 0),
+                //            StyleKey = "Flat",
+                //            Command = new DelegateCommand(_ => tab.ParentTabControl?.RemoveTab(tab))
+                //        });
+                //    return row;
+                //});
             })
             .Add(tc =>
                 new TabItem()
@@ -64,7 +64,22 @@ public class MainWindow : Screen
             .Add(tc =>
                 new TabItem()
                 .With(ti => ti.Header = "Stats")
-                .Content("Stats")
+                .Content(
+                    new StackPanel()
+                    .With(sp =>
+                    {
+                        sp.Orientation = Orientation.Horizontal;
+                    })
+                    .Children(
+                        new ScrollBar
+                        {
+                            Orientation = Orientation.Vertical,
+                            Margin = new Thickness(10),
+                            Minimum = 0,
+                            Maximum = 100,
+                            Viewport = 20,
+                        }
+                    ))
                 .Out(out stats)
             )
             .Add(tc =>
@@ -134,6 +149,46 @@ public class MainWindow : Screen
                             }
                         )
                     )
+            )
+            .Add(tc =>
+                new TabItem()
+                .With(ti => ti.Header = "DockPanel")
+                .Content(
+                    new DockPanel()
+                        .Children(
+                            new Label 
+                            {
+                                Text = "Left",
+                                Margin = new Thickness(10), 
+                                VerticalContentAlignment=VerticalAlignment.Center 
+                            }.With(l => DockPanel.SetDock(l, Dock.Left)),
+                            new Label 
+                            { 
+                                Text = "Right", 
+                                Margin = new Thickness(10), 
+                                VerticalContentAlignment = VerticalAlignment.Center 
+                            }.With(l => DockPanel.SetDock(l, Dock.Right)),
+                            new Label 
+                            { 
+                                Text = "Top", 
+                                Margin = new Thickness(10),
+                                HorizontalContentAlignment = HorizontalAlignment.Center
+                            }.With(l => DockPanel.SetDock(l, Dock.Top)),
+                            new Label 
+                            { 
+                                Text = "Bottom", 
+                                Margin = new Thickness(10),
+                                HorizontalContentAlignment = HorizontalAlignment.Center
+                            }.With(l => DockPanel.SetDock(l, Dock.Bottom)),
+                            new Label 
+                            { 
+                                Text = "Center (fills remaining space)", 
+                                Margin = new Thickness(10),
+                                HorizontalContentAlignment = HorizontalAlignment.Center,
+                                VerticalContentAlignment = VerticalAlignment.Center
+                            }
+                        )
+                )
             );
     }
 }

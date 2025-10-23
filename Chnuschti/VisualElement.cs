@@ -240,7 +240,11 @@ public class VisualElement : DependencyObject, IDisposable, IElement, IHasChildr
         // parent already removed Margin → remove Padding
         //_contentBounds = ShrinkBy(slot, Padding);
         _contentBounds = slot;
- 
+
+        // IMPORTANT: moving/resize changes translation → refresh transforms
+        _localDirty = true;          // recompute LocalMatrix (uses _contentBounds.Left/Top)
+        MatrixInvalidated();         // mark world dirty and propagate to children
+
 
         // let the control position its kids
         ArrangeContent(ToLocal(_contentBounds));

@@ -16,8 +16,8 @@ public class Control : DataElement
     public static readonly DependencyProperty ForegroundProperty = DependencyProperty.Register(nameof(Foreground), typeof(SKColor), typeof(Control), new PropertyMetadata(SKColors.Empty, OnInvalidateDrawResources, inherits: true));
     public static readonly DependencyProperty BackgroundProperty = DependencyProperty.Register(nameof(Background), typeof(SKColor), typeof(Control), new PropertyMetadata(SKColors.Empty, inherits: true));
     public static readonly DependencyProperty BoldProperty = DependencyProperty.Register(nameof(Bold), typeof(bool), typeof(Control), new PropertyMetadata(false, OnInvalidateDrawResources, inherits: true));
-    public static readonly DependencyProperty HorizontalContentAlignmentProperty = DependencyProperty.Register(nameof(HorizontalContentAlignment), typeof(HorizontalAlignment), typeof(Control), new PropertyMetadata(HorizontalAlignment.Left, OnInvalidateDrawResources));
-    public static readonly DependencyProperty VerticalContentAlignmentProperty = DependencyProperty.Register(nameof(VerticalContentAlignment), typeof(VerticalAlignment), typeof(Control), new PropertyMetadata(VerticalAlignment.Top, OnInvalidateDrawResources));
+    public static readonly DependencyProperty HorizontalContentAlignmentProperty = DependencyProperty.Register(nameof(HorizontalContentAlignment), typeof(HorizontalAlignment), typeof(Control), new PropertyMetadata(HorizontalAlignment.Stretch, OnInvalidateDrawResources));
+    public static readonly DependencyProperty VerticalContentAlignmentProperty = DependencyProperty.Register(nameof(VerticalContentAlignment), typeof(VerticalAlignment), typeof(Control), new PropertyMetadata(VerticalAlignment.Stretch, OnInvalidateDrawResources));
     public bool IsEnabled
     {
         get => (bool)GetValue(IsEnabledProperty)!;
@@ -67,7 +67,7 @@ public class Control : DataElement
         }
     }
 
-    public void MouseDown(SKPoint screenPt)
+    public virtual void MouseDown(SKPoint screenPt)
     {
         IsPressed = true;
     }

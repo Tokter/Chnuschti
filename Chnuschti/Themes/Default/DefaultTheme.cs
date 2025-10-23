@@ -1,10 +1,5 @@
 ﻿using Chnuschti.Controls;
 using SkiaSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Chnuschti.Themes.Default;
 
@@ -33,22 +28,24 @@ public class DefaultTheme : Theme
         Radius = Height / 2.0f;
         PressedRadius = 5.0f;
 
-    Resources
-        .Add<Screen, Style>(new ScreenStyle())
-        .Add<Label, Style>(new LabelExtraLargeStyle(), "ExtraLarge")
-        .Add<Label, Style>(new LabelLargeStyle(), "Large")
-        .Add<Label, Style>(new LabelMediumStyle(), "Medium")
-        .Add<Label, Style>(new LabelMediumStyle(), string.Empty) // default label style
-        .Add<Label, Style>(new LabelSmallStyle(), "Small")
-        .Add<StackPanel, Style>(new StackPanelStyle())
-        .Add<ContentControl, Style>(new ContentControlStyle())
-        .Add<ItemsControl, Style>(new ItemsControlStyle())
-        .Add<Button, Style>(new ButtonStyle())
-        .Add<Button, Style>(new ButtonFlatStyle(), "Flat")
-        .Add<Button, Style>(new ButtonOutlinedStyle(), "Outlined")
-        .Add<CheckBox, Style>(new CheckboxStyle())
-        .Add<Icon, Style>(new IconStyle())
-        .Add<TabControl, Style>(new TabControlStyle())
-        ;
+        Resources
+            .Add<Screen, Style>(new ScreenStyle())
+            .Add<Label, Style>(new LabelExtraLargeStyle(), "ExtraLarge")
+            .Add<Label, Style>(new LabelLargeStyle(), "Large")
+            .Add<Label, Style>(new LabelMediumStyle(), "Medium")
+            .Add<Label, Style>(new LabelMediumStyle(), string.Empty)
+            .Add<Label, Style>(new LabelSmallStyle(), "Small")
+            .Add<StackPanel, Style>(new StackPanelStyle())
+            .Add<DockPanel, Style>(new DockPanelStyle())
+            .Add<ContentControl, Style>(new ContentControlStyle())
+            .Add<ItemsControl, Style>(new ItemsControlStyle())
+            .Add<Button, Style>(new ButtonStyle())
+            .Add<Button, Style>(new ButtonFlatStyle(), "Flat")
+            .Add<Button, Style>(new ButtonOutlinedStyle(), "Outlined")
+            .Add<CheckBox, Style>(new CheckboxStyle())
+            .Add<Icon, Style>(new IconStyle())
+            .Add<TabControl, Style>(new TabControlStyle())
+            .Add<ScrollBar, Style>(new ScrollBarStyle())
+            ;
     }
 }
