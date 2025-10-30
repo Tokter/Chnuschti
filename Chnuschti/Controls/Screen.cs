@@ -16,6 +16,7 @@ public class Screen : ContentControl
     {
         InitializeComponent();
         HotReloadManager.RegisterScreen(this);
+        IsRoot = true;
     }
 
     protected virtual void InitializeComponent()

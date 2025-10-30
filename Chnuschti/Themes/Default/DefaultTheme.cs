@@ -46,6 +46,9 @@ public class DefaultTheme : Theme
             .Add<Icon, Style>(new IconStyle())
             .Add<TabControl, Style>(new TabControlStyle())
             .Add<ScrollBar, Style>(new ScrollBarStyle())
+            .Add<MenuItem, Style>(new MenuItemStyle())
+            .Add<Menu, Style>(new MenuStyle())
+            .Add<Popup, Style>(new PopupStyle())
             ;
     }
 }

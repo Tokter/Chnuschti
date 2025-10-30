@@ -1,4 +1,5 @@
-﻿using SkiaSharp;
+﻿using Chnuschti.Controls;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -160,7 +161,7 @@ public class VisualElement : DependencyObject, IDisposable, IElement, IHasChildr
         if (d is VisualElement element) element.InvalidateMeasure(); // This will trigger layout recalculation
     }
 
-    protected void InvalidateMeasure()
+    internal void InvalidateMeasure()
     {
         if (_isMeasureValid)
         {
@@ -230,6 +231,7 @@ public class VisualElement : DependencyObject, IDisposable, IElement, IHasChildr
     }
 
     private SKRect _layoutSlot;
+    public SKRect LayoutSlot => _layoutSlot;
 
     /// <summary>
     /// Arranges the layout of the control within the specified slot.
@@ -246,17 +248,15 @@ public class VisualElement : DependencyObject, IDisposable, IElement, IHasChildr
         _layoutSlot = slot;
         _isArrangeValid = true;
 
-        // parent already removed Margin → remove Padding
-        //_contentBounds = ShrinkBy(slot, Padding);
-        _contentBounds = slot;
+        // Store content bounds as LOCAL rectangle (start at 0,0)
+        _contentBounds = new SKRect(0, 0, slot.Width, slot.Height);
 
-        // IMPORTANT: moving/resize changes translation → refresh transforms
-        _localDirty = true;          // recompute LocalMatrix (uses _contentBounds.Left/Top)
-        MatrixInvalidated();         // mark world dirty and propagate to children
+        // Moving/resizing changes translation → refresh transforms
+        _localDirty = true;
+        MatrixInvalidated();
 
-
-        // let the control position its kids
-        ArrangeContent(ToLocal(_contentBounds));
+        // Arrange children in LOCAL coordinates
+        ArrangeContent(_contentBounds);
     }
 
     /// <summary>
@@ -310,6 +310,7 @@ public class VisualElement : DependencyObject, IDisposable, IElement, IHasChildr
 
     private readonly List<VisualElement> _children = new();
     public IReadOnlyList<VisualElement> Children => _children;
+    public bool IsRoot { get; set; }
 
     public VisualElement AddChild(VisualElement child)
     {
@@ -337,6 +338,17 @@ public class VisualElement : DependencyObject, IDisposable, IElement, IHasChildr
         }
         _children.Clear();
         this.InvalidateMeasure(); // children cleared, measure may change
+    }
+
+    public IEnumerable<T> DescendantsOfType<T>() where T : VisualElement
+    {
+        foreach (var child in _children)
+        {
+            if (child is T tChild)
+                yield return tChild;
+            foreach (var desc in child.DescendantsOfType<T>())
+                yield return desc;
+        }
     }
 
     protected void ReplaceVisualChild(VisualElement? oldChild, VisualElement? newChild)
@@ -375,8 +387,8 @@ public class VisualElement : DependencyObject, IDisposable, IElement, IHasChildr
             if (_localDirty)
             {
                 _localMatrix = SKMatrix.CreateIdentity();
-                _localMatrix = _localMatrix.PreConcat(
-                SKMatrix.CreateTranslation(_contentBounds.Left, _contentBounds.Top));
+                // Translate by layout slot, NOT by ContentBounds (now local)
+                _localMatrix = _localMatrix.PreConcat(SKMatrix.CreateTranslation(_layoutSlot.Left, _layoutSlot.Top));
                 _localMatrix = _localMatrix.PreConcat(SKMatrix.CreateScale(ScaleX, ScaleY));
                 _localMatrix = _localMatrix.PreConcat(SKMatrix.CreateRotationDegrees(Rotation));
                 _localDirty = false;
@@ -385,7 +397,7 @@ public class VisualElement : DependencyObject, IDisposable, IElement, IHasChildr
         }
     }
 
-    private SKMatrix WorldMatrix
+    internal SKMatrix WorldMatrix
     {
         get
         {
@@ -434,16 +446,22 @@ public class VisualElement : DependencyObject, IDisposable, IElement, IHasChildr
         DrawLayoutDebug(canvas);
 #endif
         canvas.Restore();
+
+        if (IsRoot)
+        {
+            PopupManager.RenderPopups(this, canvas, deltaTime);
+        }
     }
 
     public static bool ShowLayoutDebug = false;
+    public bool ShowLayoutDebugLocal = false;
 
     /// <summary>Draws two rectangles around this element:<br/>
     /// • **red** = outer edge of <c>Margin</c><br/>
     /// • **blue** = outer edge of <c>Padding</c></summary>
     public void DrawLayoutDebug(SKCanvas c)
     {
-        if (!ShowLayoutDebug) return;
+        if (!ShowLayoutDebug && !ShowLayoutDebugLocal) return;
 
         // margins extend *outside* the padding-boxed content bounds
         var w = ContentBounds.Width;
@@ -475,6 +493,12 @@ public class VisualElement : DependencyObject, IDisposable, IElement, IHasChildr
 
     public VisualElement? HitTest(SKPoint screenPt)
     {
+        if (IsRoot)
+        {
+            var ph = PopupManager.HitTest(screenPt);
+            if (ph != null) return ph;
+        }
+
         // 1) children first – last rendered = top-most
         for (int i = _children.Count - 1; i >= 0; i--)
         {

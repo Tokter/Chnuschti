@@ -15,12 +15,13 @@ namespace Demo.Views;
 public class MainWindow : Screen
 {
     private Button? _button;
+    private Label _menuLabel;
 
     protected override void InitializeComponent()
     {
         VisualElement.ShowLayoutDebug = false;
 
-        TabItem? stats = null;
+        TabItem? stats = null;        
 
         Content = new TabControl()
             .With(tc =>
@@ -160,39 +161,79 @@ public class MainWindow : Screen
                 .Content(
                     new DockPanel()
                         .Children(
-                            new Label 
+                            new Label
                             {
                                 Text = "Left",
-                                Margin = new Thickness(10), 
-                                VerticalContentAlignment=VerticalAlignment.Center 
+                                Margin = new Thickness(10),
+                                VerticalContentAlignment = VerticalAlignment.Center
                             }.Dock(Dock.Left),
-                            new Label 
-                            { 
-                                Text = "Right", 
-                                Margin = new Thickness(10), 
-                                VerticalContentAlignment = VerticalAlignment.Center 
+                            new Label
+                            {
+                                Text = "Right",
+                                Margin = new Thickness(10),
+                                VerticalContentAlignment = VerticalAlignment.Center
                             }.Dock(Dock.Right),
-                            new Label 
-                            { 
-                                Text = "Top", 
+                            new Label
+                            {
+                                Text = "Top",
                                 Margin = new Thickness(10),
                                 HorizontalContentAlignment = HorizontalAlignment.Center
                             }.Dock(Dock.Top),
-                            new Label 
-                            { 
-                                Text = "Bottom", 
+                            new Label
+                            {
+                                Text = "Bottom",
                                 Margin = new Thickness(10),
                                 HorizontalContentAlignment = HorizontalAlignment.Center
                             }.Dock(Dock.Bottom),
-                            new Label 
-                            { 
-                                Text = "Center (fills remaining space)", 
+                            new Label
+                            {
+                                Text = "Center (fills remaining space)",
                                 Margin = new Thickness(10),
                                 HorizontalContentAlignment = HorizontalAlignment.Center,
                                 VerticalContentAlignment = VerticalAlignment.Center
                             }
                         )
                 )
-            );
+            )
+            .Add(tc =>
+                new TabItem()
+                .With(ti => ti.Header = "Menu")
+                .Content(
+                    new DockPanel()
+                    .Children(
+                        new Menu().Dock(Dock.Top)
+                        .Add(
+                            new MenuItem { Icon = new Icon { IconKind = IconKind.File }, Text = "File" }
+                                .Add(
+                                    new MenuItem
+                                    {
+                                        Icon = new Icon { IconKind = IconKind.ContentSave },
+                                        Text = "Save",
+                                        Shortcut = "Ctrl+S",
+                                        Command = new DelegateCommand(_ =>
+                                        {
+                                            if (_menuLabel != null)
+                                                _menuLabel.Text = "Menu Click";
+                                        })
+                                    },
+                                    new MenuItem { Icon = new Icon { IconKind = IconKind.FileDocument }, Text = "Open", Shortcut = "Ctrl+O" }
+                                ),
+                            new MenuItem { Icon = new Icon { IconKind = IconKind.AccountEdit }, Text = "Edit" }
+                                .Add(
+                                    new MenuItem { Icon = new Icon { IconKind = IconKind.SelectAll }, Text = "Select All" },
+                                    new MenuItem { Icon = new Icon { IconKind = IconKind.SelectRemove }, Text = "Select None" }
+                                )
+                        ),
+                        new Label
+                        {
+                            Text = "Menu demo (hover over 'File' or 'Edit' menu items)",
+                            Margin = new Thickness(10),
+                            HorizontalContentAlignment = HorizontalAlignment.Center,
+                            VerticalContentAlignment = VerticalAlignment.Center,
+                        }.With(l => _menuLabel = l)
+                    )
+                )
+            )
+            ;
     }
 }

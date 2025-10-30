@@ -139,11 +139,11 @@ public class ButtonRenderer : Renderer<Button, ButtonRenderState>
 
         if (_renderFlags.HasFlag(ButtonRenderFlags.Filled))
         {
-            c.DrawRoundRect(0, 0, e.ContentBounds.Width, e.ContentBounds.Height, r.Radius, r.Radius, r.BackgroundPaint);
+            c.DrawRoundRect(e.ContentBounds, r.Radius, r.Radius, r.BackgroundPaint);
         }
         else if (_renderFlags.HasFlag(ButtonRenderFlags.Outlined))
         {
-            c.DrawRoundRect(0, 0, e.ContentBounds.Width, e.ContentBounds.Height, r.Radius, r.Radius, r.OutlinePaint);
+            c.DrawRoundRect(e.ContentBounds, r.Radius, r.Radius, r.OutlinePaint);
         }
 
         // let ContentControl draw child

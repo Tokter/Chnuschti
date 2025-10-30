@@ -1,4 +1,5 @@
 ﻿using Chnuschti.Controls;
+using Chnuschti.Themes.Default;
 using Microsoft.VisualBasic;
 using SkiaSharp;
 using System;
@@ -31,6 +32,7 @@ public class ChnuschtiApp
 
     private Control? _mouseOver;     // who the cursor is currently over (hover)
     private Control? _mouseCapture;  // who owns the mouse during a drag
+    private Control? _pressed;       // who is currently pressed (for visual state)
 
     public float Scale { get; set; } = 1.0f;
     public float ScreenWidth { get; set; }
@@ -116,13 +118,13 @@ public class ChnuschtiApp
             case InputEventType.MouseDown:
                 {
                     // Find control under cursor and capture it immediately
-                    var hit = VisualTreeHelper.HitTest(Screen, inputEvent.MousePos) as Control;
+                    _pressed = VisualTreeHelper.HitTest(Screen, inputEvent.MousePos) as Control;
 
                     // Update hover state to the one we clicked, for consistency
-                    if (!ReferenceEquals(hit, _mouseOver))
+                    if (!ReferenceEquals(_pressed, _mouseOver))
                     {
                         _mouseOver?.MouseLeave(inputEvent.MousePos);
-                        _mouseOver = hit;
+                        _mouseOver = _pressed;
                         if (_mouseOver?.IsEnabled == true) _mouseOver.MouseEnter(inputEvent.MousePos);
                     }
 
@@ -140,6 +142,9 @@ public class ChnuschtiApp
 
             case InputEventType.MouseUp:
                 {
+                    var wasPressed = _pressed;
+                    _pressed = null;
+
                     if (_mouseCapture != null)
                     {
                         var cap = _mouseCapture;
@@ -159,6 +164,15 @@ public class ChnuschtiApp
                     {
                         // No capture → normal mouse up on hovered control
                         if (_mouseOver?.IsEnabled == true) _mouseOver.MouseUp(inputEvent.MousePos);
+                    }
+
+                    // If this up created/shows a submenu, don't treat it as an "outside click".
+                    if (wasPressed is MenuItem mi && mi.IsSubmenuOpen) break;
+
+                    if (PopupManager.TryHandleOutsideClick(inputEvent.MousePos))
+                    {
+                        foreach (var menu in Screen.DescendantsOfType<Menu>())
+                            menu.CloseAllSubmenus();
                     }
                     break;
                 }

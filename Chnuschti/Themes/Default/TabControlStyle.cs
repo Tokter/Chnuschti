@@ -83,9 +83,8 @@ public class TabControlRenderer : Renderer<TabControl, TabControlResource>
         var hdrPanel = tc._headerPanel;
         if (hdrPanel == null || hdrPanel.Children.Count == 0) return;
 
-        // We assume the framework gives each control its layout rect via Bounds
-        // (or ArrangedRect). If not, adjust accordingly.
-        var headerRect = hdrPanel.ContentBounds; // SKRect of arranged header panel
+        // Use LayoutSlot (panel-relative to TabControl's local coords) instead of ContentBounds
+        var headerRect = hdrPanel.LayoutSlot;
 
         // Background
         canvas.DrawRect(headerRect, r.BackgroundPaint);
@@ -133,14 +132,14 @@ public class TabControlRenderer : Renderer<TabControl, TabControlResource>
 
 
         var toCtrl = (Control)hdrPanel.Children[e.SelectedIndex];
-        var toRect = toCtrl.ContentBounds;
+        var toRect = toCtrl.LayoutSlot;
 
         if (toRect.Width<= 0 || toRect.Height <= 0) return false;
 
         if (r.PreviousSelectedIndex <= 0) r.PreviousSelectedIndex = 0;
         if (r.PreviousSelectedIndex >= hdrPanel.Children.Count) r.PreviousSelectedIndex = hdrPanel.Children.Count - 1;
         var fromCtrl = (Control)hdrPanel.Children[r.PreviousSelectedIndex];
-        var fromRect = fromCtrl.ContentBounds;
+        var fromRect = fromCtrl.LayoutSlot;
 
         const float thickness = 3f; // 3dp
         switch (e.StripPlacement)
