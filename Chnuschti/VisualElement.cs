@@ -308,9 +308,11 @@ public class VisualElement : DependencyObject, IDisposable, IElement, IHasChildr
         set => SetValue(RotationProperty, value);
     }
 
+    public bool IsRoot { get; set; }
     private readonly List<VisualElement> _children = new();
     public IReadOnlyList<VisualElement> Children => _children;
-    public bool IsRoot { get; set; }
+
+    public T GetChild<T>(int index) where T : VisualElement => (T)_children[index];
 
     public VisualElement AddChild(VisualElement child)
     {

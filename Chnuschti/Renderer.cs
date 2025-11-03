@@ -59,6 +59,18 @@ public class Renderer<VisEl,Res> : IRenderer
         else return SKSize.Empty;
     }
 
+    /// <summary>
+    /// Measures the size required by the specified visual element and its children.
+    /// </summary>
+    /// <remarks>By default, this method iterates over the child elements of the specified element, measuring each visible
+    /// child to determine the maximum size required. Invisible children are skipped during the measurement.
+    /// Do not include the padding, the padding will then be added to the final measurement later.
+    /// </remarks>
+    /// <param name="element">The visual element to measure, which may contain child elements.</param>
+    /// <param name="resource">The resource context used during the measurement process.</param>
+    /// <param name="availableContent">The available size that the element can occupy.</param>
+    /// <returns>A <see cref="SKSize"/> representing the maximum width and height required by the element and its visible
+    /// children.</returns>
     public virtual SKSize OnMeasure(VisEl element, Res resource, SKSize availableContent)
     {
         var maxW = 0f;
