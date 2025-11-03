@@ -97,10 +97,10 @@ public class StackPanelLayout : IClassFixture<ThemeFixture>
         // First test left alignment
         stackPanel.Measure(new SKSize(ScreenWidth, ScreenHeight));
         stackPanel.Arrange(new SKRect(0, 0, ScreenWidth, ScreenHeight));
-        Assert.Equal(tb1.Margin.Left, tb1.LayoutSlot.Left);
-        Assert.Equal(tb2.Margin.Left, tb2.LayoutSlot.Left);
-        Assert.Equal(tb3.Margin.Left, tb3.LayoutSlot.Left);
-        Assert.Equal(tb4.Margin.Left, tb4.LayoutSlot.Left);
+        Assert.Equal(tb1.LayoutSlot.Left, tb1.Margin.Left);
+        Assert.Equal(tb2.LayoutSlot.Left, tb2.Margin.Left);
+        Assert.Equal(tb3.LayoutSlot.Left, tb3.Margin.Left);
+        Assert.Equal(tb4.LayoutSlot.Left, tb4.Margin.Left);
         AssertContentBoundsSize(tb1, tb2, tb3, tb4);
         AssertVerticalAlignment(tb1, tb2, tb3, tb4);
 
@@ -108,10 +108,10 @@ public class StackPanelLayout : IClassFixture<ThemeFixture>
         stackPanel.HorizontalContentAlignment = HorizontalAlignment.Center;
         stackPanel.Measure(new SKSize(ScreenWidth, ScreenHeight));
         stackPanel.Arrange(new SKRect(0, 0, ScreenWidth, ScreenHeight));
-        Assert.Equal(ScreenWidth / 2.0f - tb1.LayoutSlot.Width / 2.0f, tb1.LayoutSlot.Left);
-        Assert.Equal(ScreenWidth / 2.0f - tb2.LayoutSlot.Width / 2.0f, tb2.LayoutSlot.Left);
-        Assert.Equal(ScreenWidth / 2.0f - tb3.LayoutSlot.Width / 2.0f, tb3.LayoutSlot.Left);
-        Assert.Equal(ScreenWidth / 2.0f - tb4.LayoutSlot.Width / 2.0f, tb4.LayoutSlot.Left);
+        Assert.Equal(tb1.LayoutSlot.Left, ScreenWidth / 2.0f - tb1.LayoutSlot.Width / 2.0f);
+        Assert.Equal(tb2.LayoutSlot.Left, ScreenWidth / 2.0f - tb2.LayoutSlot.Width / 2.0f);
+        Assert.Equal(tb3.LayoutSlot.Left, ScreenWidth / 2.0f - tb3.LayoutSlot.Width / 2.0f);
+        Assert.Equal(tb4.LayoutSlot.Left, ScreenWidth / 2.0f - tb4.LayoutSlot.Width / 2.0f);
         AssertContentBoundsSize(tb1, tb2, tb3, tb4);
         AssertVerticalAlignment(tb1, tb2, tb3, tb4);
 
@@ -119,10 +119,10 @@ public class StackPanelLayout : IClassFixture<ThemeFixture>
         stackPanel.HorizontalContentAlignment = HorizontalAlignment.Right;
         stackPanel.Measure(new SKSize(ScreenWidth, ScreenHeight));
         stackPanel.Arrange(new SKRect(0, 0, ScreenWidth, ScreenHeight));
-        Assert.Equal(ScreenWidth - tb1.LayoutSlot.Width - tb1.Margin.Right, tb1.LayoutSlot.Left);
-        Assert.Equal(ScreenWidth - tb2.LayoutSlot.Width - tb2.Margin.Right, tb2.LayoutSlot.Left);
-        Assert.Equal(ScreenWidth - tb3.LayoutSlot.Width - tb3.Margin.Right, tb3.LayoutSlot.Left);
-        Assert.Equal(ScreenWidth - tb4.LayoutSlot.Width - tb4.Margin.Right, tb4.LayoutSlot.Left);
+        Assert.Equal(tb1.LayoutSlot.Left, ScreenWidth - tb1.LayoutSlot.Width - tb1.Margin.Right);
+        Assert.Equal(tb2.LayoutSlot.Left, ScreenWidth - tb2.LayoutSlot.Width - tb2.Margin.Right);
+        Assert.Equal(tb3.LayoutSlot.Left, ScreenWidth - tb3.LayoutSlot.Width - tb3.Margin.Right);
+        Assert.Equal(tb4.LayoutSlot.Left, ScreenWidth - tb4.LayoutSlot.Width - tb4.Margin.Right);
         AssertContentBoundsSize(tb1, tb2, tb3, tb4);
         AssertVerticalAlignment(tb1, tb2, tb3, tb4);
     }
@@ -138,25 +138,25 @@ public class StackPanelLayout : IClassFixture<ThemeFixture>
 
     private void AssertContentBoundsSize(TestBlock tb1, TestBlock tb2, TestBlock tb3, TestBlock tb4)
     {
-        Assert.Equal(new SKRect(0, 0, tb1.Width, tb1.Height), tb1.ContentBounds);
-        Assert.Equal(new SKRect(0, 0, tb2.Width, tb2.Height), tb2.ContentBounds);
-        Assert.Equal(new SKRect(0, 0, tb3.Width, tb3.Height), tb3.ContentBounds);
-        Assert.Equal(new SKRect(0, 0, tb4.ContentWidth + tb4.Padding.Horizontal, tb4.ContentHeight + tb4.Padding.Vertical), tb4.ContentBounds);
+        Assert.Equal(tb1.ContentBounds, new SKRect(0, 0, tb1.Width, tb1.Height));
+        Assert.Equal(tb2.ContentBounds, new SKRect(0, 0, tb2.Width, tb2.Height));
+        Assert.Equal(tb3.ContentBounds, new SKRect(0, 0, tb3.Width, tb3.Height));
+        Assert.Equal(tb4.ContentBounds, new SKRect(0, 0, tb4.ContentWidth + tb4.Padding.Horizontal, tb4.ContentHeight + tb4.Padding.Vertical));
     }
 
     private void AssertHorizontalAlignment(TestBlock tb1, TestBlock tb2, TestBlock tb3, TestBlock tb4)
     {
-        Assert.Equal(tb1.Margin.Left, tb1.LayoutSlot.Left);
-        Assert.Equal(tb1.LayoutSlot.Width + tb1.Margin.Horizontal + tb2.Margin.Left, tb2.LayoutSlot.Left);
-        Assert.Equal(tb1.LayoutSlot.Width + tb1.Margin.Horizontal + tb2.LayoutSlot.Width + tb2.Margin.Horizontal + tb3.Margin.Left, tb3.LayoutSlot.Left);
-        Assert.Equal(tb1.LayoutSlot.Width + tb1.Margin.Horizontal + tb2.LayoutSlot.Width + tb2.Margin.Horizontal + tb3.LayoutSlot.Width + tb3.Margin.Horizontal + tb4.Margin.Left, tb4.LayoutSlot.Left);
+        Assert.Equal(tb1.LayoutSlot.Left, tb1.Margin.Left);
+        Assert.Equal(tb2.LayoutSlot.Left, tb1.LayoutSlot.Width + tb1.Margin.Horizontal + tb2.Margin.Left);
+        Assert.Equal(tb3.LayoutSlot.Left, tb1.LayoutSlot.Width + tb1.Margin.Horizontal + tb2.LayoutSlot.Width + tb2.Margin.Horizontal + tb3.Margin.Left);
+        Assert.Equal(tb4.LayoutSlot.Left, tb1.LayoutSlot.Width + tb1.Margin.Horizontal + tb2.LayoutSlot.Width + tb2.Margin.Horizontal + tb3.LayoutSlot.Width + tb3.Margin.Horizontal + tb4.Margin.Left);
     }
 
     private void AssertVerticalAlignment(TestBlock tb1, TestBlock tb2, TestBlock tb3, TestBlock tb4)
     {
-        Assert.Equal(tb1.Margin.Top, tb1.LayoutSlot.Top);
-        Assert.Equal(tb1.LayoutSlot.Height + tb1.Margin.Vertical + tb2.Margin.Top, tb2.LayoutSlot.Top);
-        Assert.Equal(tb1.LayoutSlot.Height + tb1.Margin.Vertical + tb2.LayoutSlot.Height + tb2.Margin.Vertical + tb3.Margin.Top, tb3.LayoutSlot.Top);
-        Assert.Equal(tb1.LayoutSlot.Height + tb1.Margin.Vertical + tb2.LayoutSlot.Height + tb2.Margin.Vertical + tb3.LayoutSlot.Height + +tb3.Margin.Vertical + tb4.Margin.Top, tb4.LayoutSlot.Top);
+        Assert.Equal(tb1.LayoutSlot.Top, tb1.Margin.Top);
+        Assert.Equal(tb2.LayoutSlot.Top, tb1.LayoutSlot.Height + tb1.Margin.Vertical + tb2.Margin.Top);
+        Assert.Equal(tb3.LayoutSlot.Top, tb1.LayoutSlot.Height + tb1.Margin.Vertical + tb2.LayoutSlot.Height + tb2.Margin.Vertical + tb3.Margin.Top);
+        Assert.Equal(tb4.LayoutSlot.Top, tb1.LayoutSlot.Height + tb1.Margin.Vertical + tb2.LayoutSlot.Height + tb2.Margin.Vertical + tb3.LayoutSlot.Height + +tb3.Margin.Vertical + tb4.Margin.Top);
     }
 }
