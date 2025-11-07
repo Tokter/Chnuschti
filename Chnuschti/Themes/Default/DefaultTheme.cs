@@ -29,7 +29,7 @@ public class DefaultTheme : Theme
         PressedRadius = 5.0f;
 
         Resources
-            .Add<Screen, Style>(new ScreenStyle())
+            .Add<Window, Style>(new ScreenStyle())
             .Add<Label, Style>(new LabelExtraLargeStyle(), "ExtraLarge")
             .Add<Label, Style>(new LabelLargeStyle(), "Large")
             .Add<Label, Style>(new LabelMediumStyle(), "Medium")

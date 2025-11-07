@@ -285,20 +285,13 @@ public class VisualElement : DependencyObject, IDisposable, IElement, IHasChildr
 
     #region Scene Graph
 
-    public static readonly DependencyProperty ScaleXProperty = DependencyProperty.Register(nameof(ScaleX), typeof(float), typeof(VisualElement), new PropertyMetadata(1f, OnLocalTransformChanged, inherits: false));
-    public static readonly DependencyProperty ScaleYProperty = DependencyProperty.Register(nameof(ScaleY), typeof(float), typeof(VisualElement), new PropertyMetadata(1f, OnLocalTransformChanged, inherits: false));
+    public static readonly DependencyProperty ScaleProperty = DependencyProperty.Register(nameof(Scale), typeof(float), typeof(VisualElement), new PropertyMetadata(1f, OnLocalTransformChanged, inherits: false));
     public static readonly DependencyProperty RotationProperty = DependencyProperty.Register(nameof(Rotation), typeof(float), typeof(VisualElement), new PropertyMetadata(0f, OnLocalTransformChanged, inherits: false));
 
-    public float ScaleX
+    public float Scale
     {
-        get => (float)GetValue(ScaleXProperty)!;
-        set => SetValue(ScaleXProperty, value);
-    }
-
-    public float ScaleY
-    {
-        get => (float)GetValue(ScaleYProperty)!;
-        set => SetValue(ScaleYProperty, value);
+        get => (float)GetValue(ScaleProperty)!;
+        set => SetValue(ScaleProperty, value);
     }
 
     /// <summary>Rotation in degrees (clockwise).</summary>
@@ -391,7 +384,7 @@ public class VisualElement : DependencyObject, IDisposable, IElement, IHasChildr
                 _localMatrix = SKMatrix.CreateIdentity();
                 // Translate by layout slot, NOT by ContentBounds (now local)
                 _localMatrix = _localMatrix.PreConcat(SKMatrix.CreateTranslation(_layoutSlot.Left, _layoutSlot.Top));
-                _localMatrix = _localMatrix.PreConcat(SKMatrix.CreateScale(ScaleX, ScaleY));
+                _localMatrix = _localMatrix.PreConcat(SKMatrix.CreateScale(Scale, Scale));
                 _localMatrix = _localMatrix.PreConcat(SKMatrix.CreateRotationDegrees(Rotation));
                 _localDirty = false;
             }

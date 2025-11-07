@@ -89,10 +89,10 @@ public static class ViewHotReloadHandler
 
     private static void ApplyStylesToLiveControls()
     {
-        // Apply updated styles to all active screens and their visual trees
-        foreach (var screen in HotReloadManager._liveScreens)
+        // Apply updated styles to all active windows and their visual trees
+        foreach (var window in HotReloadManager.LiveWindows)
         {
-            RefreshStyles(screen);
+            RefreshStyles(window);
         }
     }
 
@@ -123,58 +123,37 @@ public static class ViewHotReloadHandler
 
 public static class HotReloadManager
 {
-    // Track all active screens or top-level controls
-    internal static readonly List<Screen> _liveScreens = new();
     // Reference to the application instance
     private static ChnuschtiApp? _app;
-
-    public static void RegisterScreen(Screen screen)
-    {
-        if (!_liveScreens.Contains(screen))
-            _liveScreens.Add(screen);
-    }
-
-    public static void UnregisterScreen(Screen screen)
-    {
-        _liveScreens.Remove(screen);
-    }
 
     public static void RegisterApp(ChnuschtiApp app)
     {
         _app = app;
     }
 
+    public static IEnumerable<Window> LiveWindows => _app?.Platform?.Windows ?? Array.Empty<Window>();
+
     public static void ReloadViewsOfType(Type viewType)
     {
-        // Case 1: The updated type is a Screen itself (like MainWindow)
-        if (typeof(Screen).IsAssignableFrom(viewType) && _app?.Screen?.GetType() == viewType)
+        // Case 1: The updated type is a Window itself (like MainWindow)
+        if (typeof(Window).IsAssignableFrom(viewType))
         {
-            var oldScreen = _app.Screen;
-            var oldDataContext = oldScreen.DataContext;
-            var oldContent = oldScreen.Content;
-
-            if (Activator.CreateInstance(viewType) is Screen newScreen)
+            foreach(var window in _app!.Platform!.Windows)
             {
-                newScreen.DataContext = oldDataContext;
-                               
-                // Update app reference to the new screen
-                _app.Screen = newScreen;
-                
-                // Set the size to match the current app dimensions
-                newScreen.ScaleX = _app.Scale;
-                newScreen.ScaleY = _app.Scale;
-                
-                oldScreen.Dispose();
+                if (window.GetType() == viewType)
+                {
+                    ReloadWindow(window, viewType);
+                }
             }
         }
-        // Case 2: The updated type is content inside a Screen
+        // Case 2: The updated type is content inside a Window
         else
         {
-            foreach (var screen in _liveScreens)
+            foreach (var window in _app!.Platform!.Windows)
             {
-                if (screen.Content?.GetType() == viewType)
+                if (window.Content?.GetType() == viewType)
                 {
-                    var oldView = screen.Content;
+                    var oldView = window.Content;
                     var vm = oldView.DataContext;
 
                     oldView.Dispose();
@@ -182,10 +161,30 @@ public static class HotReloadManager
                     if (Activator.CreateInstance(viewType) is Control newView)
                     {
                         newView.DataContext = vm;
-                        screen.Content = newView;
+                        window.Content = newView;
                     }
                 }
             }
+        }
+    }
+
+    private static void ReloadWindow(Window window, Type viewType)
+    {
+        var oldWindow = window;
+        var oldDataContext = oldWindow.DataContext;
+        var oldContent = oldWindow.Content;
+
+        if (Activator.CreateInstance(viewType) is Window newWindow)
+        {
+            newWindow.Width = oldWindow.Width;
+            newWindow.Height = oldWindow.Height;
+            newWindow.Scale = oldWindow.Scale;
+            newWindow.DataContext = oldDataContext;
+
+            // Update app reference to the new Window
+            _app?.Platform?.ReplaceWindow(oldWindow, newWindow);
+
+            oldWindow.Dispose();
         }
     }
 }

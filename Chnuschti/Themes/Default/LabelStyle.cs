@@ -13,7 +13,7 @@ public class LabelExtraLargeStyle : Style
 {
     public LabelExtraLargeStyle()
     {
-        Add(Screen.FontSizeProperty, 22f);
+        Add(Window.FontSizeProperty, 22f);
         Renderer = new LabelRenderer();
     }
 }
@@ -22,7 +22,7 @@ public class LabelLargeStyle : Style
 {
     public LabelLargeStyle()
     {
-        Add(Screen.FontSizeProperty, 18f);
+        Add(Window.FontSizeProperty, 18f);
         Renderer = new LabelRenderer();
     }
 }
@@ -31,7 +31,7 @@ public class LabelMediumStyle : Style
 {
     public LabelMediumStyle()
     {
-        Add(Screen.FontSizeProperty, 14f);
+        Add(Window.FontSizeProperty, 14f);
         Renderer = new LabelRenderer();
     }
 }
@@ -40,7 +40,7 @@ public class LabelSmallStyle : Style
 {
     public LabelSmallStyle()
     {
-        Add(Screen.FontSizeProperty, 10f);
+        Add(Window.FontSizeProperty, 10f);
         Renderer = new LabelRenderer();
     }
 }

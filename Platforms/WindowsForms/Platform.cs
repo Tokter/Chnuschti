@@ -1,4 +1,5 @@
-﻿using SkiaSharp;
+﻿using Chnuschti.Controls;
+using SkiaSharp;
 using SkiaSharp.Views.Desktop;
 using System;
 using System.Collections.Generic;
@@ -6,29 +7,18 @@ using System.Linq;
 using System.Runtime.Intrinsics.X86;
 using System.Text;
 using System.Threading.Tasks;
+using WindowsForms;
 
 namespace Chnuschti.WindowsForms;
 
 public class Platform : IPlatform
 {
-    private Form _form;
-    private SKGLControl _control;
+    private Dictionary<Window,PlatformWindow> _windows = new();
+
     public ChnuschtiApp Application { get; }
 
-    public Platform(Form form, SKGLControl control, ChnuschtiApp application)
+    public Platform(ChnuschtiApp application)
     {
-        _form = form;
-        _control = control;
-
-        _control.Resize += Control_Resize;
-        _control.PaintSurface += Control_PaintSurface;
-        _control.KeyDown += Control_KeyDown;
-        _control.KeyUp += Control_KeyUp;
-        _control.KeyPress += Control_KeyPress;
-        _control.MouseMove += Control_MouseMove;
-        _control.MouseDown += Control_MouseDown;
-        _control.MouseUp += Control_MouseUp;
-        _control.MouseWheel += Control_MouseWheel;
         Application = application;
     }
 
@@ -36,64 +26,34 @@ public class Platform : IPlatform
     {
     }
 
-    private void Control_PaintSurface(object? sender, SKPaintGLSurfaceEventArgs e)
+    public IEnumerable<Window> Windows => _windows.Keys;
+
+    public void CreateWindow(Window window)
     {
-        Application.Render(e.Surface.Canvas);
-
-        _control.Invalidate();
+        var pf = new PlatformWindow(window);
+        _windows[window] = pf;
     }
 
-    private void Control_Resize(object? sender, EventArgs e)
-    { 
-        if (Application.Screen == null) return;
-        Application.SetSize(_control.Width, _control.Height);
-    }
-
-    #region Input handling
-    bool _lastShift = false;
-    bool _lastControl = false;
-    bool _lastAlt = false;
-
-    private void Control_KeyDown(object? sender, KeyEventArgs e)
+    public void CloseWindow(Window window)
     {
-        _lastShift = e.Shift;
-        _lastControl = e.Control;
-        _lastAlt = e.Alt;
-        Application.ProcessInputEvent(InputEvent.KeyDown((Key)e.KeyValue, _lastShift, _lastControl, _lastAlt));
+        if (_windows.TryGetValue(window, out var pf))
+        {
+            pf.Dispose();
+            _windows.Remove(window);
+        }
     }
 
-    private void Control_KeyUp(object? sender, KeyEventArgs e)
+    public void ReplaceWindow(Window oldWindow, Window newWindow)
     {
-        _lastShift = e.Shift;
-        _lastControl = e.Control;
-        _lastAlt = e.Alt;
-        Application.ProcessInputEvent(InputEvent.KeyUp((Key)e.KeyValue, _lastShift, _lastControl, _lastAlt));
+        if (_windows.TryGetValue(oldWindow, out var pf))
+        {
+            _windows.Remove(oldWindow);
+            _windows.Add(newWindow, pf);
+        }
     }
 
-    private void Control_KeyPress(object? sender, KeyPressEventArgs e)
+    public void Run()
     {
-        Application.ProcessInputEvent(InputEvent.KeyPress(e.KeyChar.ToString()));
+        _windows.First().Value.Run();
     }
-
-    public void Control_MouseMove(object? sender, MouseEventArgs e)
-    {
-        Application.ProcessInputEvent(InputEvent.MouseMove(e.X, e.Y, (MouseButtons)((int)e.Button >> 20), _lastShift, _lastControl, _lastAlt));
-    }
-
-    private void Control_MouseDown(object? sender, MouseEventArgs e)
-    {
-        Application.ProcessInputEvent(InputEvent.MouseDown(e.X, e.Y, (MouseButtons)((int)e.Button >> 20), _lastShift, _lastControl, _lastAlt));
-    }
-
-    private void Control_MouseUp(object? sender, MouseEventArgs e)
-    {
-        Application.ProcessInputEvent(InputEvent.MouseUp(e.X, e.Y, (MouseButtons)((int)e.Button >> 20), _lastShift, _lastControl, _lastAlt));
-    }
-
-    private void Control_MouseWheel(object? sender, MouseEventArgs e)
-    {
-        Application.ProcessInputEvent(InputEvent.MouseWheel(e.Delta, _lastShift, _lastControl, _lastAlt));
-    }
-
-    #endregion
 }

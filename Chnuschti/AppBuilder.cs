@@ -58,7 +58,10 @@ public class AppBuilder
             throw new InvalidOperationException("Application not configured. Call Configure() first.");
         }
         _args = args;
-        _app.Configure();
+        _app.Configure(_platform);
+        var mainWindow = _app.CreateMainWindow();
+        _platform.CreateWindow(mainWindow);
+        _platform.Run();
     }
 
     private void UseApplication(ChnuschtiApp app)

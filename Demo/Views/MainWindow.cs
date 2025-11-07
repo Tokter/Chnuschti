@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Demo.Views;
 
-public class MainWindow : Screen
+public class MainWindow : Window
 {
     private Button? _button;
     private Label _menuLabel;

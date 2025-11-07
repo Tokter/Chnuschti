@@ -11,7 +11,7 @@ namespace Demo;
 
 public class DemoApp : ChnuschtiApp
 {
-    protected override void OnStartup()
+    public override Window CreateMainWindow()
     {
         SetupDependencyInjection();
 
@@ -19,11 +19,12 @@ public class DemoApp : ChnuschtiApp
 
         ViewLocator = new ViewLocator();
 
-        Screen = new MainWindow
+        return new MainWindow
         {
-            DataContext = Ioc.Default.GetService<MainViewModel>()
+            DataContext = Ioc.Default.GetService<MainViewModel>(),
+            Width = 800,
+            Height = 600,
         };
-
     }
 
     private void SetupDependencyInjection()

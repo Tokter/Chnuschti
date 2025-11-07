@@ -13,202 +13,24 @@ namespace Chnuschti;
 
 public class ChnuschtiApp
 {
-    private float MousePosX = 0.0f;
-    private float MousePosY = 0.0f;
-
+    public IPlatform? Platform { get; private set; }
     public IViewLocator? ViewLocator { get; set; }
-    public Screen? Screen { get; set; }
 
-    public void Configure()
+    public void Configure(IPlatform platform)
     {
+        Platform = platform;
         HotReloadManager.RegisterApp(this);
-        OnStartup();
-    }
-
-    protected virtual void OnStartup()
-    {
-        // Override this method to add startup logic
-    }
-
-    private Control? _mouseOver;     // who the cursor is currently over (hover)
-    private Control? _mouseCapture;  // who owns the mouse during a drag
-    private Control? _pressed;       // who is currently pressed (for visual state)
-
-    public float Scale { get; set; } = 1.0f;
-    public float ScreenWidth { get; set; }
-    public float ScreenHeight { get; set; }
-
-    public void SetSize(float width, float height)
-    {
-        ScreenWidth = width;
-        ScreenHeight = height;
-
-        if (Screen == null) return; // Ensure Screen is initialized
-        Screen.ScaleX = Scale;
-        Screen.ScaleY = Scale;
-    }
-
-    private readonly FrameTimer _timer = new();
-
-    public void Render(SKCanvas canvas)
-    {
-        _timer.Tick();
-
-        if (Screen == null) return; // Render the screen content
-
-        //Layout the screen
-        Screen.Measure(new SKSize(ScreenWidth / Scale, ScreenHeight / Scale));
-        Screen.Arrange(new SKRect(0, 0, ScreenWidth / Scale, ScreenHeight / Scale));
-
-        Screen.Render(canvas, _timer.DeltaTime);
-
-        //Draw mouse position for debugging at the bottom left corner
-        using var paint = new SKPaint
-        {
-            Color = SKColors.Red,
-        };
-        using var font = new SKFont
-        {
-            Size = 16 * Screen.ScaleY,
-        };
-        canvas.DrawText($"Mouse: {MousePosX / Scale:F2}, {MousePosY / Scale:F2}", 10 * Scale, ScreenHeight - 10 * Scale, font, paint);
-
-        //Draw FPS at the top right corner
-        canvas.DrawText($"FPS: {_timer.Fps:F2}", ScreenWidth - 80 * Scale, 15 * Scale, font, paint);
-
     }
 
     /// <summary>
-    /// Processes the specified input event and determines whether it was handled successfully.
+    /// Creates and returns the main application window.
     /// </summary>
-    /// <param name="inputEvent">The input event to process. Cannot be null.</param>
-    /// <returns><see langword="true"/> if the input event was handled successfully; otherwise, <see langword="false"/>.</returns>
-    public bool ProcessInputEvent(InputEvent inputEvent)
+    /// <remarks>This method should be overridden in a derived class to configure and return the main window
+    /// of the application. The default implementation throws a <see cref="NotImplementedException"/>.</remarks>
+    /// <returns>A <see cref="Window"/> object representing the main window of the application.</returns>
+    /// <exception cref="NotImplementedException">Thrown if the method is not overridden in a derived class.</exception>
+    public virtual Window CreateMainWindow()
     {
-        if (Screen == null) return false;
-
-        switch (inputEvent.InputEventType)
-        {
-            case InputEventType.MouseMove:
-                {
-                    MousePosX = inputEvent.MousePos.X;
-                    MousePosY = inputEvent.MousePos.Y;
-
-                    if (_mouseCapture != null)
-                    {
-                        // While captured → no hit-test, just forward moves
-                        if (_mouseCapture.IsEnabled) _mouseCapture.MouseMove(inputEvent.MousePos);
-                        return true;
-                    }
-
-                    // No capture → maintain hover enter/leave and forward move to hovered control
-                    var hit = VisualTreeHelper.HitTest(Screen, inputEvent.MousePos) as Control;
-
-                    if (!ReferenceEquals(hit, _mouseOver))
-                    {
-                        _mouseOver?.MouseLeave(inputEvent.MousePos);
-                        _mouseOver = hit;
-                        if (_mouseOver?.IsEnabled == true) _mouseOver.MouseEnter(inputEvent.MousePos);
-                    }
-
-                    if (_mouseOver?.IsEnabled == true) _mouseOver.MouseMove(inputEvent.MousePos);
-                    break;
-                }
-
-            case InputEventType.MouseDown:
-                {
-                    // Find control under cursor and capture it immediately
-                    _pressed = VisualTreeHelper.HitTest(Screen, inputEvent.MousePos) as Control;
-
-                    // Update hover state to the one we clicked, for consistency
-                    if (!ReferenceEquals(_pressed, _mouseOver))
-                    {
-                        _mouseOver?.MouseLeave(inputEvent.MousePos);
-                        _mouseOver = _pressed;
-                        if (_mouseOver?.IsEnabled == true) _mouseOver.MouseEnter(inputEvent.MousePos);
-                    }
-
-                    if (_mouseOver?.IsEnabled == true)
-                    {
-                        _mouseCapture = _mouseOver;           // <- capture starts here
-                        _mouseCapture.MouseDown(inputEvent.MousePos);
-                    }
-                    else
-                    {
-                        _mouseCapture = null;
-                    }
-                    break;
-                }
-
-            case InputEventType.MouseUp:
-                {
-                    var wasPressed = _pressed;
-                    _pressed = null;
-
-                    if (_mouseCapture != null)
-                    {
-                        var cap = _mouseCapture;
-                        _mouseCapture = null;
-                        if (cap.IsEnabled) cap.MouseUp(inputEvent.MousePos);
-
-                        // After releasing, re-evaluate hover under current cursor
-                        var hit = VisualTreeHelper.HitTest(Screen, inputEvent.MousePos) as Control;
-                        if (!ReferenceEquals(hit, _mouseOver))
-                        {
-                            _mouseOver?.MouseLeave(inputEvent.MousePos);
-                            _mouseOver = hit;
-                            if (_mouseOver?.IsEnabled == true) _mouseOver.MouseEnter(inputEvent.MousePos);
-                        }
-                    }
-                    else
-                    {
-                        // No capture → normal mouse up on hovered control
-                        if (_mouseOver?.IsEnabled == true) _mouseOver.MouseUp(inputEvent.MousePos);
-                    }
-
-                    // If this up created/shows a submenu, don't treat it as an "outside click".
-                    if (wasPressed is MenuItem mi && mi.IsSubmenuOpen) break;
-
-                    if (PopupManager.TryHandleOutsideClick(inputEvent.MousePos))
-                    {
-                        foreach (var menu in Screen.DescendantsOfType<Menu>())
-                            menu.CloseAllSubmenus();
-                    }
-                    break;
-                }
-
-            case InputEventType.KeyDown:
-                {
-                    // Tab navigation is app-level
-                    if (inputEvent.Key == Key.Tab)
-                    {
-                        if (inputEvent.Shift) FocusManager.Instance.MoveFocusPrev(Screen);
-                        else FocusManager.Instance.MoveFocusNext(Screen);
-                        return true; // handled
-                    }
-
-                    // Esc to clear focus? (optional)
-                    // if (e.Key == Key.Escape) { FocusManager.Instance.ClearFocus(); return true; }
-
-                    FocusManager.Instance.DispatchKeyDown(inputEvent);
-                    break;
-                }
-
-            case InputEventType.KeyUp:
-                {
-                    FocusManager.Instance.DispatchKeyUp(inputEvent);
-                    break;
-                }
-
-            case InputEventType.TextInput:
-                {
-                    if (inputEvent.Text != null) FocusManager.Instance.DispatchTextInput(new TextInputEvent(inputEvent.Text));
-                    break;
-                }
-
-        }
-
-        return true;
+        throw new NotImplementedException("CreateMainWindow must be overridden in a derived class to configure the main window.");
     }
-
 }
