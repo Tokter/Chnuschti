@@ -138,7 +138,7 @@ public static class HotReloadManager
         // Case 1: The updated type is a Window itself (like MainWindow)
         if (typeof(Window).IsAssignableFrom(viewType))
         {
-            foreach(var window in _app!.Platform!.Windows)
+            foreach(var window in _app!.Platform!.Windows.ToList())
             {
                 if (window.GetType() == viewType)
                 {

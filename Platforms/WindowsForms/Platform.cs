@@ -52,6 +52,15 @@ public class Platform : IPlatform
         }
     }
 
+    public IPlatformWindow? GetPlatformWindow(Window window)
+    {
+        if (_windows.TryGetValue(window, out var pf))
+        {
+            return pf;
+        }
+        return null;
+    }
+
     public void Run()
     {
         _windows.First().Value.Run();

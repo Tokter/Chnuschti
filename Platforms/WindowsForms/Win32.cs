@@ -15,6 +15,7 @@ public static class Win32
     public const int DWMWA_BORDER_COLOR = 34;   // ARGB color (uint)
     public const int DWMWA_USE_IMMERSIVE_DARK_MODE = 20;   // or 19 on some builds\
     public const int DWMWA_MICA_EFFECT = 1029; // Windows 11 22H2
+    public const int DWMWA_TRANSITIONS_FORCEDISABLED = 3;
 
     public const int DWMNCRP_DISABLED = 2;
 
@@ -28,6 +29,17 @@ public static class Win32
     public const int WM_PAINT = 0x000F;
     public const int WM_NCLBUTTONDOWN = 0xA1;
     public const int WM_SETCURSOR = 0x20;
+    public const int WM_SYSCOMMAND = 0x0112;
+
+    public const int SC_MAXIMIZE = 0xF030;
+    public const int SC_MINIMIZE = 0xF020;
+    public const int SC_RESTORE = 0xF120;
+
+    public const int SM_CXSIZEFRAME = 32;
+    public const int SM_CYSIZEFRAME = 33;
+    public const int SM_CXPADDEDBORDER = 92;
+
+    public const int GWL_STYLE = -16;
 
     public const int WS_THICKFRAME = 0x00040000; // sizing border
     public const int WS_CAPTION = 0x00C00000; // we do NOT want this
@@ -63,15 +75,12 @@ public static class Win32
     }
 
     [StructLayout(LayoutKind.Sequential)]
+    public struct POINT { public int X, Y; }
+
+    [StructLayout(LayoutKind.Sequential)]
     public struct RECT
     {
         public int Left, Top, Right, Bottom;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    public struct NCCALCSIZE_PARAMS
-    {
-        public RECT rgrc0; public RECT rgrc1; public RECT rgrc2; public IntPtr lppos;
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -85,22 +94,43 @@ public static class Win32
         public bool fTransitionOnMaximized;
     }
 
-    [DllImport("dwmapi.dll")]
-    public static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
+    [StructLayout(LayoutKind.Sequential)]
+    public struct NCCALCSIZE_PARAMS
+    {
+        public RECT rgrc0, rgrc1, rgrc2;
+        public IntPtr lppos;
+    }
 
-    [DllImport("dwmapi.dll")]
-    public static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref uint attrValue, int attrSize);
+    public static POINT GetResizeBorderThicknessForWindowDpi(IntPtr hwnd)
+    {
+        try
+        {
+            uint dpi = GetDpiForWindow(hwnd);
+            int cx = GetSystemMetricsForDpi(SM_CXSIZEFRAME, dpi) + GetSystemMetricsForDpi(SM_CXPADDEDBORDER, dpi);
+            int cy = GetSystemMetricsForDpi(SM_CYSIZEFRAME, dpi) + GetSystemMetricsForDpi(SM_CXPADDEDBORDER, dpi);
+            return new POINT { X = cx, Y = cy };
+        }
+        catch
+        {
+            // Older OS fallback (non-DPI aware)
+            int cx = GetSystemMetrics(SM_CXSIZEFRAME) + GetSystemMetrics(SM_CXPADDEDBORDER);
+            int cy = GetSystemMetrics(SM_CYSIZEFRAME) + GetSystemMetrics(SM_CXPADDEDBORDER);
+            return new POINT { X = cx, Y = cy };
+        }
+    }
 
-    [DllImport("dwmapi.dll")]
-    public static extern int DwmEnableBlurBehindWindow(IntPtr hwnd, ref DWM_BLURBEHIND blur);
-
-    [DllImport("user32.dll", SetLastError = true)]
-    public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
-
-    [DllImport("user32.dll")]
-    public static extern bool ReleaseCapture();
-
-    [DllImport("user32.dll")]
-    public static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam);
-
+    [DllImport("dwmapi.dll")] public static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
+    [DllImport("dwmapi.dll")] public static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref uint attrValue, int attrSize);
+    [DllImport("dwmapi.dll")] public static extern int DwmEnableBlurBehindWindow(IntPtr hwnd, ref DWM_BLURBEHIND blur);
+    [DllImport("user32.dll", SetLastError = true)] public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
+    [DllImport("user32.dll")] public static extern bool ReleaseCapture();
+    [DllImport("user32.dll")] public static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam);
+    [DllImport("user32.dll")] public static extern IntPtr PostMessage(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam);
+    [DllImport("user32.dll")] public static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+    [DllImport("user32.dll")] public static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
+    [DllImport("user32.dll")] [return: MarshalAs(UnmanagedType.Bool)] public static extern bool IsZoomed(IntPtr hWnd);   // true if currently maximized
+    [DllImport("user32.dll")] [return: MarshalAs(UnmanagedType.Bool)] public static extern bool IsIconic(IntPtr hWnd);   // true if minimized
+    [DllImport("user32.dll")] public static extern uint GetDpiForWindow(IntPtr hWnd);
+    [DllImport("user32.dll")] public static extern int GetSystemMetrics(int nIndex);
+    [DllImport("user32.dll")] public static extern int GetSystemMetricsForDpi(int nIndex, uint dpi);
 }

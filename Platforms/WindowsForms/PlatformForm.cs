@@ -11,11 +11,11 @@ namespace WindowsForms
 
     public class PlatformForm : Form
     {
-        private const int cGrip = 4;      // Grip size
-        private const int cCaption = 8;   // Caption bar height;
+        private PlatformWindow _platformWindow;
 
-        public PlatformForm()
+        public PlatformForm(PlatformWindow platformWindow)
         {
+            _platformWindow = platformWindow;
             this.SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw, true);
         }
 
@@ -26,9 +26,9 @@ namespace WindowsForms
                 var cp = base.CreateParams;
 
                 // Remove anything that would force caption rendering
-                cp.Style &= ~(Win32.WS_CAPTION | Win32.WS_SYSMENU | Win32.WS_MINIMIZEBOX | Win32.WS_MAXIMIZEBOX);
+                //cp.Style &= ~(Win32.WS_THICKFRAME);
                 // Keep only size box
-                cp.Style |= Win32.WS_THICKFRAME;
+                // cp.Style |= Win32.WS_THICKFRAME | Win32.WS_MINIMIZEBOX | Win32.WS_MAXIMIZEBOX;
                 return cp;
             }
         }
@@ -68,38 +68,38 @@ namespace WindowsForms
             switch (m.Msg)
             {
                 case Win32.WM_NCCALCSIZE:
+                    // If you’re extending client to cover the title area, you MUST handle this.
+                    // When maximized, shrink the client rect by the resize border thickness so content isn’t cut off.
                     if (m.WParam != IntPtr.Zero)
                     {
-                        // Tell Windows the whole rect is client; no default frame/title
-                        m.Result = IntPtr.Zero;
+                        var p = (Win32.NCCALCSIZE_PARAMS)System.Runtime.InteropServices.Marshal.PtrToStructure(m.LParam, typeof(Win32.NCCALCSIZE_PARAMS));
+
+                        if (Win32.IsZoomed(this.Handle)) // window is maximized
+                        {
+                            var inset = Win32.GetResizeBorderThicknessForWindowDpi(this.Handle);
+                            p.rgrc0.Left += inset.X;
+                            p.rgrc0.Top += inset.Y;
+                            p.rgrc0.Right -= inset.X;
+                            p.rgrc0.Bottom -= inset.Y;
+                        }
+
+                        System.Runtime.InteropServices.Marshal.StructureToPtr(p, m.LParam, false);
+                        m.Result = IntPtr.Zero; // we handled it
                         return;
                     }
                     break;
 
-                case Win32.WM_NCHITTEST:               
+                case Win32.WM_NCHITTEST:
                     // Convert to client coordinates
                     Point screenPos = new Point(m.LParam.ToInt32());
                     Point clientPos = PointToClient(screenPos);
-                    int x = clientPos.X;
-                    int y = clientPos.Y;
-                    int w = ClientSize.Width;
-                    int h = ClientSize.Height;
 
-                    bool caption = y <= cCaption;
-                    bool left = x <= cGrip;
-                    bool right = x >= w - cGrip;
-                    bool top = y <= cGrip;
-                    bool bottom = y >= h - cGrip;
-
-                    if (caption) { m.Result = (IntPtr)Win32.HitTestValues.Caption; return; }
-                    if (left && top) { m.Result = (IntPtr)Win32.HitTestValues.TopLeft; return; }
-                    if (right && top) { m.Result = (IntPtr)Win32.HitTestValues.TopRight; return; }
-                    if (left && bottom) { m.Result = (IntPtr)Win32.HitTestValues.BottomLeft; return; }
-                    if (right && bottom) { m.Result = (IntPtr)Win32.HitTestValues.BottomRight; return; }
-                    if (left) { m.Result = (IntPtr)Win32.HitTestValues.Left; return; }
-                    if (right) { m.Result = (IntPtr)Win32.HitTestValues.Right; return; }
-                    if (top) { m.Result = (IntPtr)Win32.HitTestValues.Top; return; }
-                    if (bottom) { m.Result = (IntPtr)Win32.HitTestValues.Bottom; return; }
+                    var hitTestValue = _platformWindow.GetHitZone(clientPos, ClientSize.Width, ClientSize.Height);
+                    if (hitTestValue != Win32.HitTestValues.Nowhere)
+                    {
+                        m.Result = (IntPtr)hitTestValue;
+                        return;
+                    }
                     break;
             }
 

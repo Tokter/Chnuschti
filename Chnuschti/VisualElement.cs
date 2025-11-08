@@ -479,6 +479,7 @@ public class VisualElement : DependencyObject, IDisposable, IElement, IHasChildr
     #region Hit Test
 
     public static readonly DependencyProperty IsHitTestVisibleProperty = DependencyProperty.Register(nameof(IsHitTestVisible), typeof(bool), typeof(VisualElement), new PropertyMetadata(true));
+    public static readonly DependencyProperty IsWindowDragAreaProperty = DependencyProperty.Register(nameof(IsWindowDragArea), typeof(bool), typeof(VisualElement), new PropertyMetadata(false));
 
     public bool IsHitTestVisible
     {
@@ -486,7 +487,13 @@ public class VisualElement : DependencyObject, IDisposable, IElement, IHasChildr
         set => SetValue(IsHitTestVisibleProperty, value);
     }
 
-    public VisualElement? HitTest(SKPoint screenPt)
+    public bool IsWindowDragArea
+    {
+        get => (bool)GetValue(IsWindowDragAreaProperty)!;
+        set => SetValue(IsWindowDragAreaProperty, value);
+    }
+
+    public VisualElement? HitTest(SKPoint screenPt, bool onlyHitTestVisible = true)
     {
         if (IsRoot)
         {
@@ -497,11 +504,11 @@ public class VisualElement : DependencyObject, IDisposable, IElement, IHasChildr
         // 1) children first – last rendered = top-most
         for (int i = _children.Count - 1; i >= 0; i--)
         {
-            var hit = _children[i].HitTest(screenPt);
+            var hit = _children[i].HitTest(screenPt, onlyHitTestVisible);
             if (hit != null) return hit;
         }
 
-        if (!IsHitTestVisible) return null;
+        if (onlyHitTestVisible && !IsHitTestVisible) return null;
 
 
         // 2) self: map to local and hit the content rect

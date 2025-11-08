@@ -1,12 +1,7 @@
 ﻿using Chnuschti;
 using Chnuschti.Controls;
-using Chnuschti.WindowsForms;
+using SkiaSharp;
 using SkiaSharp.Views.Desktop;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace WindowsForms
 {
@@ -14,17 +9,17 @@ namespace WindowsForms
     {
         private Window _chnuschtiWindow;
         private PlatformForm _window;
-        private FocusableSKGLControl _skglControl;
+        private Chnuschti.WindowsForms.FocusableSKGLControl _skglControl;
         private string _title = "Chnuschti - Windows Forms";
 
         public PlatformWindow(Window chnuschtiWindow)
         {
             _chnuschtiWindow = chnuschtiWindow;
 
-            _window = new PlatformForm();
+            _window = new PlatformForm(this);
             _window.SuspendLayout();
 
-            _skglControl = new FocusableSKGLControl();
+            _skglControl = new Chnuschti.WindowsForms.FocusableSKGLControl(this);
             _skglControl.API = OpenTK.Windowing.Common.ContextAPI.OpenGL;
             _skglControl.APIVersion = new Version(3, 3, 0, 0);
             _skglControl.Dock = DockStyle.Fill;
@@ -55,7 +50,9 @@ namespace WindowsForms
 
             //Center the window on screen
             _window.StartPosition = FormStartPosition.CenterScreen;
-            _window.FormBorderStyle = FormBorderStyle.None;
+            _window.FormBorderStyle = FormBorderStyle.Sizable;
+            _window.MaximizeBox = true;
+            _window.MinimizeBox = true;
 
             _window.Shown += (s, e) => _skglControl.Focus();
 
@@ -70,6 +67,31 @@ namespace WindowsForms
                 _title = value;
                 _window.Text = value;
             }
+        }
+
+        public WindowState WindowState
+        {
+            get => _window.WindowState == FormWindowState.Normal ? WindowState.Normal :
+                        _window.WindowState == FormWindowState.Minimized ? WindowState.Minimized :
+                        WindowState.Maximized;
+            set
+            {
+                _window.WindowState = value == WindowState.Normal ? FormWindowState.Normal :
+                                        value == WindowState.Minimized ? FormWindowState.Minimized :
+                                        FormWindowState.Maximized;
+            }
+        }
+
+        public SKPoint Location
+        {
+            get => new SKPoint(_window.Location.X, _window.Location.Y);
+            set => _window.Location = new Point((int)value.X, (int)value.Y);
+        }
+
+        public SKPoint Size
+        {
+            get => new SKPoint(_window.Size.Width, _window.Size.Height);
+            set => _window.Size = new Size((int)value.X, (int)value.Y);
         }
 
         private void Control_PaintSurface(object? sender, SKPaintGLSurfaceEventArgs e)
@@ -104,6 +126,39 @@ namespace WindowsForms
         {
             Application.Run(_window);
         }
+
+        #region Client Area Detection
+
+        private const int cGrip = 4;      // Grip size
+
+        public Win32.HitTestValues GetHitZone(Point pos, int windowWidth, int windowHeight)
+        {
+            int x = pos.X;
+            int y = pos.Y;
+            int w = windowWidth;
+            int h = windowHeight;
+
+            bool left = x <= cGrip;
+            bool right = x >= w - cGrip;
+            bool top = y <= cGrip;
+            bool bottom = y >= h - cGrip;
+
+            if (left && top) return Win32.HitTestValues.TopLeft;
+            if (right && top) return Win32.HitTestValues.TopRight;
+            if (left && bottom) return Win32.HitTestValues.BottomLeft;
+            if (right && bottom) return Win32.HitTestValues.BottomRight;
+            if (top) return Win32.HitTestValues.Top;
+            if (left) return Win32.HitTestValues.Left;
+            if (right) return Win32.HitTestValues.Right;
+            if (bottom) return Win32.HitTestValues.Bottom;
+
+            var element = _chnuschtiWindow.HitTest(new SkiaSharp.SKPoint(x, y), false);
+            if (element?.IsWindowDragArea == true) return Win32.HitTestValues.Caption;
+
+            return Win32.HitTestValues.Nowhere;
+        }
+
+        #endregion
 
         #region Input handling
 

@@ -26,6 +26,8 @@ public class DockPanelRenderer : Renderer<DockPanel, DockPanelResource>
     {
         float remainingW = availableContent.Width;
         float remainingH = availableContent.Height;
+        float minWidth = 0;
+        float minHeight = 0;
         foreach (var child in element.Children)
         {
             // Child receives remaining space
@@ -38,14 +40,17 @@ public class DockPanelRenderer : Renderer<DockPanel, DockPanelResource>
                 case Dock.Left:
                 case Dock.Right:
                     remainingW -= need.Width;
+                    minHeight = Math.Max(minHeight, need.Height);
                     break;
                 case Dock.Top:
                 case Dock.Bottom:
                     remainingH -= need.Height;
+                    minWidth = Math.Max(minWidth, need.Width);
                     break;
             }
         }
+        
         // Final size is original available size minus any remaining space
-        return new SKSize(availableContent.Width - remainingW, availableContent.Height - remainingH);
+        return new SKSize(Math.Max(minWidth, availableContent.Width - remainingW), Math.Max(minHeight, availableContent.Height - remainingH));
     }
 }

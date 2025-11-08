@@ -21,9 +21,77 @@ public class MainWindow : Window
     {
         VisualElement.ShowLayoutDebug = false;
 
-        TabItem? stats = null;        
+        Content = new DockPanel()
+            .Children(
+                CreateTitleBar().Dock(Dock.Top),
+                CreateMainContent()
+            );
+    }
 
-        Content = new TabControl()
+    private Control CreateTitleBar()
+    {
+        return new DockPanel()
+            .Children(
+                new Button
+                {
+                    Content = new Icon { IconKind = IconKind.Close, Margin = new Thickness(4, 8) },
+                    StyleKey = "Flat",
+                    Command = new DelegateCommand(_ => this.Close())
+                }
+                .Dock(Dock.Right),
+
+                new Button
+                {
+                    Content = new Icon { IconKind = IconKind.WindowMaximize, Margin = new Thickness(4,8) },
+                    StyleKey = "Flat",
+                    Command = new DelegateCommand(_ =>
+                    {
+                        if (this.WindowState == WindowState.Maximized)
+                        {
+                            this.WindowState = WindowState.Normal;
+                        }
+                        else
+                        {
+                            this.WindowState = WindowState.Maximized;
+                        }
+                    })
+                }
+                .Dock(Dock.Right),
+
+                new Button
+                {
+                    Content = new Icon { IconKind = IconKind.WindowMinimize, Margin = new Thickness(4, 8) },
+                    StyleKey = "Flat",
+                    Command = new DelegateCommand(_ =>
+                    {
+                        if (this.WindowState == WindowState.Minimized)
+                        {
+                            this.WindowState = WindowState.Normal;
+                        }
+                        else
+                        {
+                            this.WindowState = WindowState.Minimized;
+                        }
+                    })
+                }
+                .Dock(Dock.Right),
+
+                new Label
+                {
+                    StyleKey = "Large",
+                    Margin = new Thickness(10,0),
+                    VerticalContentAlignment = VerticalAlignment.Center,
+                    IsWindowDragArea = true,
+                }
+                .Bind(Label.TextProperty, this.OneWayToDC<MainViewModel, string>(mvm => mvm.Title))
+            );
+    }
+
+    private Control CreateMainContent()
+    {
+        TabItem? stats = null;
+
+        return new TabControl()
             .With(tc =>
             {
                 tc.Margin = new Thickness(5);

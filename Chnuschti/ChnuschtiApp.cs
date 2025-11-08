@@ -13,6 +13,7 @@ namespace Chnuschti;
 
 public class ChnuschtiApp
 {
+    public static ChnuschtiApp Current { get; private set; } = null!;
     public IPlatform? Platform { get; private set; }
     public IViewLocator? ViewLocator { get; set; }
 
@@ -20,6 +21,11 @@ public class ChnuschtiApp
     {
         Platform = platform;
         HotReloadManager.RegisterApp(this);
+        if (Current != null)
+        {
+            throw new InvalidOperationException("An instance of ChnuschtiApp is already configured as the current application.");
+        }
+        Current = this;
     }
 
     /// <summary>

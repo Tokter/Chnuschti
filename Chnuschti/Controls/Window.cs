@@ -9,6 +9,13 @@ using static Chnuschti.InputEvent;
 
 namespace Chnuschti.Controls;
 
+public enum WindowState
+{
+    Normal,
+    Minimized,
+    Maximized
+}
+
 public class Window : ContentControl
 {
     private readonly Random rand = new();
@@ -22,6 +29,30 @@ public class Window : ContentControl
     protected virtual void InitializeComponent()
     {
     }
+
+    public void Show()
+    {
+        ChnuschtiApp.Current.Platform?.CreateWindow(this);
+    }
+
+    public void Close()
+    {
+        ChnuschtiApp.Current.Platform?.CloseWindow(this);
+    }
+
+    public WindowState WindowState
+    {
+        get => ChnuschtiApp.Current.Platform?.GetPlatformWindow(this)?.WindowState ?? WindowState.Normal;
+        set
+        {
+            var platformWindow = ChnuschtiApp.Current.Platform?.GetPlatformWindow(this);
+            if (platformWindow != null)
+            {
+                platformWindow.WindowState = value;
+            }
+        }
+    }
+
 
     #region Rendering
 
